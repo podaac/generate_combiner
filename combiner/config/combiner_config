@@ -1,0 +1,42 @@
+################################################################################
+#
+# This file contains environment variables for running the Combiner component in
+# the Generate Program.
+#
+################################################################################
+
+setenv PATH /usr/local/netcdf/bin:/usr/local/bin:/bin:/usr/bin:/opt/local/bin:/usr/X11R6/bin:./:/usr
+
+# Set environment for sigevent manager.
+setenv GHRSST_SIGEVENT_URL http://test.test.com:8080
+
+# Points to where the Perl & IDL codes are installed.
+setenv GHRSST_PERL_LIB_DIRECTORY $HOME/generate/workspace/generate/combiner/perl    # NET edit. (Local)
+setenv GHRSST_IDL_LIB_DIRECTORY $HOME/generate/workspace/generate/combiner/idl    # NET edit. (Local)
+setenv GHRSST_SHELL_LIB_DIRECTORY $HOME/generate/workspace/generate/combiner/shell    # NET edit. (Local)
+
+# Configuration files
+setenv GHRSST_DATA_CONFIG_FILE $HOME/generate/workspace/generate/combiner/config/ghrsst_data_config_file.dat    # NET edit. (Local)
+
+# Path to log file.
+setenv COMBINER_LOGGING /data/dev/tebaldi/combiner/logs    # NET edit. (Local)
+# setenv COMBINER_LOGGING /data/logs    # NET edit. (Docker container)
+
+# Path to job directory
+setenv COMBINER_JOB_DIR /data/dev/tebaldi/combiner/jobs    # NET edit. (Local)
+# setenv COMBINER_JOB_DIR /data/jobs    # NET edit. (Docker container)
+
+# Scratch directory to store temporary files and registry.
+setenv SCRATCH_AREA /data/dev/tebaldi/combiner/scratch   # NET edit. (Local)
+
+# Debug mode
+setenv GHRSST_MODIS_L2_COMBINER_DEBUG_MODE true # NET edit. (Testing, set to false in production)
+
+# Set GHRSST_MODIS_L2_COMBINER_USE_FILE_LOCK to use the file locking mechanism to prevent race condition
+setenv GHRSST_MODIS_L2_USE_FILE_LOCK true
+
+# Set blocking time out and attempts
+# The value for GHRSST_MODIS_L2_MAX_FILE_LOCK_BLOCKING_TIME_OUT is the number of seconds to wait to acquire a lock.  The default is 10 seconds
+setenv GHRSST_MODIS_L2_MAX_FILE_LOCK_BLOCKING_TIME_OUT 10
+# The value for GHRSST_MODIS_L2_MAX_FILE_LOCK_ATTEMPTS is how many attempts to acquire a lock.  The default is 1.
+setenv GHRSST_MODIS_L2_MAX_FILE_LOCK_ATTEMPTS 5

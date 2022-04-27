@@ -1,0 +1,44 @@
+#-------------------------------------------------------------------------------
+#
+# This file contains configuration definitions of the combiner component.
+# The Perl code will read this file into memory to perform look up when a value 
+# is needed.
+#
+# Format:
+#
+#   parameter   value
+#
+# Note:
+#   1. Blank lines and commented lines are ignored.
+#   2. Actual value will be modified for each user who checks out this code from
+#      CM to show their actual directory.
+#
+#-------------------------------------------------------------------------------
+
+#
+# Settings to find various executables.
+#
+
+LOCAL_MACHINE_SYSTEM_BIN_DIRECTORY /usr/bin
+LOCAL_MACHINE_SHELL_BIN_DIRECTORY  /bin
+
+#
+# Setting for where to look for SST/SST4/OC files for combining into one file.
+#
+# Notes: 
+#   1.  These values were set by the developer and must be re-set by the 
+#       operator to the actual values for TEST/OPS.
+#   2.  All the directory names, e.g MODIS_AQUA_L2_SST_OBPG_QUICKLOOK, 
+#       MODIS_TERRA_L2_SST_OBPG_QUICKLOOK must be kept as is because that is the
+#       name of the dataset.  You can change the top level directory above them.
+#   3.  The configuration cannot perform environment variable substitution.  The 
+#       values on the right hand side must be literal.
+
+AQUA_QUICKLOOK      /data/dev/tebaldi/combiner/input/MODIS_AQUA_L2_SST_OBPG_QUICKLOOK
+AQUA_REFINED       /data/dev/tebaldi/combiner/input/MODIS_AQUA_L2_SST_OBPG_REFINED
+
+TERRA_QUICKLOOK    /data/dev/tebaldi/combiner/input/MODIS_TERRA_L2_SST_OBPG_QUICKLOOK
+TERRA_REFINED      /data/dev/tebaldi/combiner/input/MODIS_TERRA_L2_SST_OBPG_REFINED
+
+VIIRS_QUICKLOOK    /data/dev/tebaldi/combiner/input/VIIRS_L2_SST_OBPG_QUICKLOOK
+VIIRS_REFINED      /data/dev/tebaldi/combiner/input/VIIRS_L2_SST_OBPG_REFINED
