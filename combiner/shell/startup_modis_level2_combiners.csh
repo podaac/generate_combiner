@@ -24,8 +24,8 @@ source $HOME/generate/workspace/generate/combiner/config/combiner_config    # NE
 
 # Get the input.
 
-if ($# != 3) then
-    echo "startup_modis_level2_combiners:ERROR, You must specify exactly 3 arguments: num_files_to_combine num_minutes_to_wait value_move_instead_of_copy"
+if ($# != 5) then
+    echo "startup_modis_level2_combiners:ERROR, You must specify exactly 4 arguments: num_files_to_combine num_minutes_to_wait value_move_instead_of_copy data_type processing_type"
     exit
 endif
 
@@ -34,10 +34,14 @@ endif
 #  1 = num_files_to_combine
 #  2 = num_minutes_to_wait
 #  3 = value_move_instead_of_copy 
+#  4 = data_type    # Either MODIS_A, MODIS_T, VIIRS
+#  5 = processing_type    # Either QUICKLOOK, REFINED
 
 set num_files_to_combine       = $1
 set num_minutes_to_wait        = $2
 set value_move_instead_of_copy = $3
+set data_type                  = $4
+set processing_type            = $5
 
 # Create the $HOME/logs directory if it does not exist yet    # NET edit.
 
@@ -47,14 +51,39 @@ if (! -e $logging_dir) then    # NET edit.
 endif
 set log_top_level_directory = $logging_dir     # NET edit.
 
+# Create the log file
 
-# Call the script to combine the MODIS_A files
+set today_date = `date '+%m_%d_%y'`
+set combiner_log_name = "$log_top_level_directory/modis_level2_combiner_{$data_type}_{$processing_type}_output_{$today_date}.log"
+touch $combiner_log_name
 
-# $GHRSST_PERL_LIB_DIRECTORY/../bin/startup_modis_level2_MODIS_A_combiner.csh $num_files_to_combine $num_minutes_to_wait $value_move_instead_of_copy &    # NET edit. (No running in background)
-# $GHRSST_SHELL_LIB_DIRECTORY/startup_modis_level2_MODIS_A_combiner.csh $num_files_to_combine $num_minutes_to_wait $value_move_instead_of_copy
+# Determine which script to call with specific parameters based on data_type
 
-# Call the script to combine the MODIS_T files.  Note that we go to sleep 4 seconds to prevent the code from running the same time
-# sleep 4
-# $GHRSST_PERL_LIB_DIRECTORY/../bin/startup_modis_level2_MODIS_T_combiner.csh $num_files_to_combine $num_minutes_to_wait $value_move_instead_of_copy &     # NET edit. (No running in background)
-$GHRSST_SHELL_LIB_DIRECTORY/startup_modis_level2_MODIS_T_combiner.csh $num_files_to_combine $num_minutes_to_wait $value_move_instead_of_copy
+if ($data_type == "MODIS_A") then
+    set script_name = "modis_level2_combiner_historical.pl"
+    if ($processing_type == "QUICKLOOK") then
+        set p_type = "AQUA_QUICKLOOK"
+    else
+        set p_type = "AQUA_REFINED"
+    endif
+else if ($data_type == "MODIS_T") then
+    set script_name = "modis_level2_combiner_historical.pl"
+    if ($processing_type == "QUICKLOOK") then
+        set p_type = "TERRA_QUICKLOOK"
+    else
+        set p_type = "TERRA_REFINED"
+    endif
+else
+    set script_name = "generic_level2_combiner.pl"
+    if ($processing_type == "QUICKLOOK") then
+        set p_type = "VIIRS_QUICKLOOK"
+    else
+        set p_type = "VIIRS_REFINED"
+    endif
+endif
+
+# Call the script to combine the files
+
+perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy >> $combiner_log_name
+
 exit
