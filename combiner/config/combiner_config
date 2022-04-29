@@ -11,23 +11,21 @@ setenv PATH /usr/local/netcdf/bin:/usr/local/bin:/bin:/usr/bin:/opt/local/bin:/u
 setenv GHRSST_SIGEVENT_URL http://test.test.com:8080
 
 # Points to where the Perl & IDL codes are installed.
-setenv GHRSST_PERL_LIB_DIRECTORY $HOME/generate/workspace/generate/combiner/perl    # NET edit. (Local)
-setenv GHRSST_IDL_LIB_DIRECTORY $HOME/generate/workspace/generate/combiner/idl    # NET edit. (Local)
-setenv GHRSST_SHELL_LIB_DIRECTORY $HOME/generate/workspace/generate/combiner/shell    # NET edit. (Local)
+setenv GHRSST_PERL_LIB_DIRECTORY /app/perl    # NET edit. (Docker container)
+setenv GHRSST_IDL_LIB_DIRECTORY /app/idl    # NET edit. (Docker container)
+setenv GHRSST_SHELL_LIB_DIRECTORY /app/shell    # NET edit. (Docker container)
 
 # Configuration files
-setenv GHRSST_DATA_CONFIG_FILE $HOME/generate/workspace/generate/combiner/config/ghrsst_data_config_file.dat    # NET edit. (Local)
+setenv GHRSST_DATA_CONFIG_FILE /app/config/ghrsst_data_config_file.dat    # NET edit. (Docker container)
 
 # Path to log file.
-setenv COMBINER_LOGGING /data/dev/tebaldi/combiner/logs    # NET edit. (Local)
-# setenv COMBINER_LOGGING /data/logs    # NET edit. (Docker container)
+setenv COMBINER_LOGGING /data/logs    # NET edit. (Docker container)
 
 # Path to job directory
-setenv COMBINER_JOB_DIR /data/dev/tebaldi/combiner/jobs    # NET edit. (Local)
-# setenv COMBINER_JOB_DIR /data/jobs    # NET edit. (Docker container)
+setenv COMBINER_JOB_DIR /data/jobs    # NET edit. (Docker container)
 
 # Scratch directory to store temporary files and registry.
-setenv SCRATCH_AREA /data/dev/tebaldi/combiner/scratch   # NET edit. (Local)
+setenv SCRATCH_AREA /data/scratch    # NET edit. (Docker container)
 
 # Debug mode
 setenv GHRSST_MODIS_L2_COMBINER_DEBUG_MODE true # NET edit. (Testing, set to false in production)
