@@ -23,7 +23,7 @@ my $sigevent_url = $ENV{GHRSST_SIGEVENT_URL};
 my $sigevent_provider      = "JPL";
 my $sigevent_source        = "GHRSST-PROCESSING";
 my $sigevent_type          = "";
-my $sigevent_category      = 'UNCATEGORIZED';
+my $sigevent_category      = 'GENERATE';
 my $sigevent_description   = "";
 my $sigevent_data          = "This is sigevent_data";
 

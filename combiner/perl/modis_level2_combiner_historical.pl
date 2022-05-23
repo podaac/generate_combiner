@@ -162,7 +162,7 @@ if ($sigevent_url eq '') {
     die ("Cannot continue until environment GHRSST_SIGEVENT_URL is defined"); 
 }
 
-my $sigevent_clause = "SIGEVENT=" . $sigevent_url . "&category=UNCATEGORIZED&provider=jpl";
+my $sigevent_clause = "SIGEVENT=" . $sigevent_url . "&category=GENERATE&provider=jpl";
 my $temp_dir = "/tmp/";
 my $msg2report = 7;
 my $sigevent_data = '';
@@ -1622,7 +1622,7 @@ sub call_idl_to_perform_combine_operation {
         my $sigevent_provider      = "JPL";
         my $sigevent_source        = "GHRSST-PROCESSING";
         my $sigevent_type          = "ERROR";
-        my $sigevent_category      = 'UNCATEGORIZED';
+        my $sigevent_category      = 'GENERATE';
         my $sigevent_description   = $sigevent_msg;
         do "$GHRSST_PERL_LIB_DIRECTORY/raise_sigevent.pl";
         raise_sigevent($sigevent_url,$sigevent_provider,$sigevent_source,$sigevent_type,$sigevent_category,$sigevent_description,$sigevent_data);

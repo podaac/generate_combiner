@@ -17,7 +17,7 @@ do "$GHRSST_PERL_LIB_DIRECTORY/raise_sigevent.pl";
 
 my $sigevent_provider      = "JPL";
 my $sigevent_type = "information";
-my $sigevent_category = "UNCATEGORY";
+my $sigevent_category = "GENERATE";
 my $sigevent_msg = "hello there";
 my $sigevent_email_to = "DUMMY_EMAIL";
 my $sigevent_url = $ENV{GHRSST_SIGEVENT_URL};
@@ -66,7 +66,7 @@ sub mkdir_with_error_handling {
         $sigevent_msg = "MKDIR_FAILED " . $i_directory_to_create;
         log_this("ERROR",$g_routine_name,$sigevent_msg);
         $sigevent_type = "ERROR";
-        $sigevent_category = "UNCATEGORIZED";
+        $sigevent_category = "GENERATE";
         $sigevent_url = $ENV{GHRSST_SIGEVENT_URL};
         raise_sigevent($sigevent_url,$sigevent_provider,$sigevent_source,$sigevent_type,$sigevent_category,$g_routine_name . ":" . $sigevent_msg,$sigevent_data);
     }

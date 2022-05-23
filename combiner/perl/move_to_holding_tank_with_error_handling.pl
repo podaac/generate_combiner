@@ -19,7 +19,7 @@ use File::Copy;
 
 my $sigevent_provider      = "JPL";
 my $sigevent_type = "information";
-my $sigevent_category = "UNCATEGORIZED";
+my $sigevent_category = "GENERATE";
 my $sigevent_msg = "hello there";
 my $sigevent_email_to = "DUMMY_EMAIL";
 my $sigevent_url = $ENV{GHRSST_SIGEVENT_URL};

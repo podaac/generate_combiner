@@ -44,7 +44,7 @@ sub file_move_with_error_handling {
         $o_move_status = 0;
         $sigevent_msg = "FILE_MOVE_FAILED_SOURCE_FILE_DOES_NOT_EXIST " . $i_filename_to_move;
         $sigevent_type = "ERROR";
-        $sigevent_category = "UNCATEGORIZED";
+        $sigevent_category = "GENERATE";
         $sigevent_url = $ENV{GHRSST_SIGEVENT_URL};
         log_this("ERROR",$g_routine_name,$sigevent_msg);
         raise_sigevent($sigevent_url,$sigevent_provider,$sigevent_source,$sigevent_type,$sigevent_category,$g_routine_name . ":" . $sigevent_msg,$sigevent_data);
@@ -67,7 +67,7 @@ sub file_move_with_error_handling {
         $o_move_status = 0;
         $sigevent_msg = "FILE_MOVE_FAILED_OUTPUT_DIRECTORY_DOES_NOT_EXIST [$i_destination_name]";
         $sigevent_type = "ERROR";
-        $sigevent_category = "UNCATEGORIZED";
+        $sigevent_category = "GENERATE";
         $sigevent_url = $ENV{GHRSST_SIGEVENT_URL};
         log_this("ERROR",$g_routine_name,$sigevent_msg);
         raise_sigevent($sigevent_url,$sigevent_provider,$sigevent_source,$sigevent_type,$sigevent_category,$g_routine_name . ":" . $sigevent_msg,$sigevent_data);
@@ -116,7 +116,7 @@ sub file_move_with_error_handling {
         # Notify operator and return.
         $sigevent_msg = "FILE_MOVE_FAILED FROM " . $i_filename_to_move . " TO " . $i_destination_name;
         $sigevent_type = "ERROR";
-        $sigevent_category = "UNCATEGORIZED";
+        $sigevent_category = "GENERATE";
         $sigevent_url = $ENV{GHRSST_SIGEVENT_URL};
         log_this("ERROR",$g_routine_name,$sigevent_msg);
         raise_sigevent($sigevent_url,$sigevent_provider,$sigevent_source,$sigevent_type,$sigevent_category,$g_routine_name . ":" . $sigevent_msg,$sigevent_data);

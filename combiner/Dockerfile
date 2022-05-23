@@ -26,6 +26,7 @@ ENV PERL_MM_OPT="INSTALL_BASE=/root/perl5"
 ENV PERL_MM_USE_DEFAULT=1 
 ENV PERL_EXTUTILS_AUTOINSTALL="--defaultdeps" 
 RUN /usr/local/bin/perl -MCPAN -Mlocal::lib -e 'CPAN::install(Date::Calc)'
+RUN /usr/local/bin/perl -MCPAN -Mlocal::lib -e 'CPAN::install(Bundle::LWP)'
 RUN /usr/local/bin/perl -MCPAN -Mlocal::lib -e 'CPAN::install(File::NFSLock)'
 RUN /bin/rm -rf /root/local-lib-2.000029*
 
