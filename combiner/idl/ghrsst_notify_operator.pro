@@ -292,7 +292,7 @@ PRO ghrsst_notify_operator, routine_name, msg_type, msg, email, sigevent, temp_d
                                    'source='     +sigevt_source         +'&'+ $
                                    'provider='   +sigevt_provider       +'&'+ $
                                    'computer='   +sigevt_computer       +'&'+ $
-                                   'data="'      +data_as_text + '"'    +'&'+ $
+                                   'data='       +data_as_text          +'&'+ $
                                    'description='+sigevt_description
           endif else begin
               ; The data is empty, no need to include it.
@@ -306,6 +306,8 @@ PRO ghrsst_notify_operator, routine_name, msg_type, msg, email, sigevent, temp_d
                                    'description='+sigevt_description
 
           endelse
+
+          print, 'rest service call: ', rest_service_call;
 
           resp               = oUrl->Get(URL=rest_service_call,/STRING_ARRAY)
           msg2               = ['   SigEvent URL','        '+rest_service_call,'   SigEvent Return Value','        '+resp]
