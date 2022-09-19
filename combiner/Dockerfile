@@ -1,7 +1,7 @@
 # Stage 0 - Create from Perl 5.34.1-slim-buster image and install dependencies
 # FROM perl:5.34.1-slim-buster as stage0
 FROM perl:5.34.1-slim-buster
-RUN apt update && apt install -y tcsh libfreetype6 libxpm4 libxmu6 libidn11 procps build-essential wget
+RUN apt update && apt install -y tcsh libfreetype6 libxpm4 libxmu6 libidn11 procps build-essential libxinerama-dev
 RUN ln -s /usr/lib/x86_64-linux-gnu/libXpm.so.4.11.0 /usr/lib/x86_64-linux-gnu/libXp.so.6
 
 # Stage 1 - Copy Generate code
@@ -9,26 +9,21 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/libXpm.so.4.11.0 /usr/lib/x86_64-linux-gnu/l
 RUN /bin/mkdir /data
 COPY . /app
 
+# Stage 2 - IDL installation
+# FROM stage1 AS stage2
+RUN /bin/mkdir /root/idl_install \
+    && /bin/tar -xf /app/idl/install/$IDL_INSTALLER -C /root/idl_install/ \
+    && /bin/cp /app/idl/install/idl_answer_file /root/idl_install/ \
+    && /root/idl_install/install.sh -s < /root/idl_install/idl_answer_file \
+    && /bin/echo $LICENSE_SERVER > /usr/local/idl/license/lic_server.dat \
+    && /bin/ln -s /usr/local/idl/$IDL_VERSION/bin/idl /usr/local/bin
+
 # Stage 2 - Local Perl Library
 # FROM stage1 as stage2
-RUN /usr/bin/wget -P /root https://cpan.metacpan.org/authors/id/H/HA/HAARG/local-lib-2.000029.tar.gz 
-RUN /bin/tar -xzf /root/local-lib-2.000029.tar.gz -C /root/
-WORKDIR "/root/local-lib-2.000029"
-RUN /usr/local/bin/perl Makefile.PL --bootstrap 
-RUN /usr/bin/make test 
-RUN /usr/bin/make install 
-RUN echo 'eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib)"' >>~/.bashrc
-ENV PATH="/root/perl5/bin${PATH:+:${PATH}}"
-ENV PERL5LIB="/root/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"
-ENV PERL_LOCAL_LIB_ROOT="/root/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"
-ENV PERL_MB_OPT="--install_base \"/root/perl5\""
-ENV PERL_MM_OPT="INSTALL_BASE=/root/perl5"
-ENV PERL_MM_USE_DEFAULT=1 
-ENV PERL_EXTUTILS_AUTOINSTALL="--defaultdeps" 
-RUN /usr/local/bin/perl -MCPAN -Mlocal::lib -e 'CPAN::install(Date::Calc)'
-RUN /usr/local/bin/perl -MCPAN -Mlocal::lib -e 'CPAN::install(Bundle::LWP)'
-RUN /usr/local/bin/perl -MCPAN -Mlocal::lib -e 'CPAN::install(File::NFSLock)'
-RUN /bin/rm -rf /root/local-lib-2.000029*
+RUN /usr/bin/yes | /usr/local/bin/cpan App::cpanminus \
+    && /usr/local/bin/cpanm Date::Calc \
+    && /usr/local/bin/cpanm Bundle::LWP \
+    && /usr/local/bin/cpanm File::NFSLock
 
 # Stage 3 - Execute code
 # FROM stage2 as stage3

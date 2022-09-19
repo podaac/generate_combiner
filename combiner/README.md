@@ -4,7 +4,7 @@ The combiner processes and combines files for MODIS Aqua and MODIS Terra (SST/SS
 
 ## pre-requisites to building
 
-An IDL license for executing IDL within the Docker container. This can be accomplished by mounting your local IDL installation into the Docker container.
+An IDL license for executing IDL within the Docker container. This can be accomplished by pointing a build argument to an IDL license server (see build command section).
 
 The following IDL files must be compiled to `.sav` files:
 - combine_netcdf_sst_and_sst3_files_to_netcdf.pro
@@ -23,7 +23,12 @@ To compile IDL files:
 
 ## build command
 
-`docker build --tag combiner:0.1 . `
+`docker build --build-arg LICENSE_SERVER=http://xxx.xx.xx.xxx:4080 --build-arg IDL_INSTALLER=idlxxx-linux.tar.gz --build-arg IDL_VERSION=idlxx --tag combiner:0.1 .`
+
+Build arguments:
+- LICENSE_SERVER: The IP address of an IDL license server.
+- IDL_INSTALLER: The file name of the IDL installer.
+- IDL_VERSION: The version of IDL that will be installed.
 
 ## execute command
 
@@ -41,4 +46,4 @@ VIIRS:
 
 **NOTES**
 - In order for the commands to execute the `/combiner/` directories will need to point to actual directories on the system.
-- The `/usr/local` directory contains the IDL license requirements.
+- IDL is installed and configured by the Dockerfile.
