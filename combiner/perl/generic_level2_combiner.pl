@@ -436,6 +436,7 @@ my $child_pid        = $DUMMY_PROCESS_ID;  # Set this child process id to someth
 if ($ENV{GHRSST_MODIS_L2_USE_PARALLEL_PROCESSING} eq "false") {
     $use_parallel_processing_flag = 0;
 }
+log_this("INFO Use parallel processing: ", $use_parallel_processing_flag);
 
 my $working_on_this_file = "";
 my $time_start_combining;
