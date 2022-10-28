@@ -32,17 +32,25 @@ Build arguments:
 
 ## execute command
 
+Arguemnts:
+1.	num_files_to_combine
+2.	num_minutes_to_wait
+3.	value_move_instead_of_copy
+4.	data_source
+5.	processing_type
+6.	job_index
+
 MODIS A: 
-`docker run --name gen-comb -v /combiner/input:/data/input -v /combiner/jobs:/data/jobs -v /combiner/logs:/data/logs -v /combiner/scratch:/data/scratch -v /usr/local:/usr/local combiner:0.1 30 300 yes MODIS_A QUICKLOOK`
-`docker run --name gen-comb -v /combiner/input:/data/input -v /combiner/jobs:/data/jobs -v /combiner/logs:/data/logs -v /combiner/scratch:/data/scratch -v /usr/local:/usr/local combiner:0.1 30 300 yes MODIS_A REFINED`
+`docker run --name gen-comb -v /combiner/input:/data -v /processor/input:/data/scratch combiner:0.1 30 300 yes MODIS_A QUICKLOOK 0`
+`docker run --name gen-comb -v /combiner/input:/data -v /processor/input:/data/scratch combiner:0.1 30 300 yes MODIS_A REFINED 0`
 
 MODIS T: 
-`docker run --name gen-comb -v /combiner/input:/data/input -v /combiner/jobs:/data/jobs -v /combiner/logs:/data/logs -v /combiner/scratch:/data/scratch -v /usr/local:/usr/local combiner:0.1 30 300 yes MODIS_T QUICKLOOK`
-`docker run --name gen-comb -v /combiner/input:/data/input -v /combiner/jobs:/data/jobs -v /combiner/logs:/data/logs -v /combiner/scratch:/data/scratch -v /usr/local:/usr/local combiner:0.1 30 300 yes MODIS_T REFINED`
+`docker run --name gen-comb -v /combiner/input:/data -v /processor/input:/data/scratch combiner:0.1 30 300 yes MODIS_T QUICKLOOK 0`
+`docker run --name gen-comb -v /combiner/input:/data -v /processor/input:/data/scratch combiner:0.1 30 300 yes MODIS_T REFINED 0`
 
 VIIRS: 
-`docker run --name gen-comb -v /combiner/input:/data/input -v /combiner/jobs:/data/jobs -v /combiner/logs:/data/logs -v /combiner/scratch:/data/scratch -v /usr/local:/usr/local combiner:0.1 25 300 yes VIIRS QUICKLOOK`
-`docker run --name gen-comb -v /combiner/input:/data/input -v /combiner/jobs:/data/jobs -v /combiner/logs:/data/logs -v /combiner/scratch:/data/scratch -v /usr/local:/usr/local combiner:0.1 25 300 yes VIIRS REFINED`
+`docker run --name gen-comb -v /combiner/input:/data -v /processor/input:/data/scratch combiner:0.1 25 300 yes VIIRS QUICKLOOK 0`
+`docker run --name gen-comb -v /combiner/input:/data -v /processor/input:/data/scratch combiner:0.1 25 300 yes VIIRS REFINED 0`
 
 **NOTES**
 - In order for the commands to execute the `/combiner/` directories will need to point to actual directories on the system.
