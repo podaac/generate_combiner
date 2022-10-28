@@ -26,7 +26,8 @@ RUN /bin/mkdir /root/idl_install \
 RUN /usr/bin/yes | /usr/local/bin/cpan App::cpanminus \
     && /usr/local/bin/cpanm Date::Calc \
     && /usr/local/bin/cpanm Bundle::LWP \
-    && /usr/local/bin/cpanm File::NFSLock
+    && /usr/local/bin/cpanm File::NFSLock \
+    && /usr/local/bin/cpanm JSON
 
 # Stage 3 - Execute code
 # FROM stage2 as stage3

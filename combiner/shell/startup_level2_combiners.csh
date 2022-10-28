@@ -23,8 +23,8 @@ source /app/config/combiner_config    # NET edit (Docker container)
 
 # Get the input.
 
-if ($# != 5) then
-    echo "startup_modis_level2_combiners:ERROR, You must specify exactly 4 arguments: num_files_to_combine num_minutes_to_wait value_move_instead_of_copy data_type processing_type"
+if ($# != 6) then
+    echo "startup_modis_level2_combiners:ERROR, You must specify exactly 5 arguments: num_files_to_combine num_minutes_to_wait value_move_instead_of_copy data_type processing_type job_index"
     exit
 endif
 
@@ -35,12 +35,14 @@ endif
 #  3 = value_move_instead_of_copy 
 #  4 = data_type    # Either MODIS_A, MODIS_T, VIIRS
 #  5 = processing_type    # Either QUICKLOOK, REFINED
+#  6 = job_index    # Intenger index to locate file list
 
 set num_files_to_combine       = $1
 set num_minutes_to_wait        = $2
 set value_move_instead_of_copy = $3
 set data_type                  = $4
 set processing_type            = $5
+set job_index                  = $6
 
 # Create the $HOME/logs directory if it does not exist yet    # NET edit.
 
@@ -53,20 +55,21 @@ set log_top_level_directory = $logging_dir     # NET edit.
 # Create the log file
 
 set today_date = `date '+%m_%d_%y'`
-set combiner_log_name = "$log_top_level_directory/level2_combiner_{$data_type}_{$processing_type}_output_{$today_date}.log"
+set random_number = `bash -c 'echo $RANDOM'`
+set combiner_log_name = "$log_top_level_directory/level2_combiner_{$data_type}_{$processing_type}_output_{$today_date}_{$random_number}.log"   # Create unique combiner log
 touch $combiner_log_name
 
 # Determine which script to call with specific parameters based on data_type
 
 if ($data_type == "MODIS_A") then
-    set script_name = "modis_level2_combiner_historical.pl"
+    set script_name = "modis_level2_combiner_historical_job_index.pl"
     if ($processing_type == "QUICKLOOK") then
         set p_type = "AQUA_QUICKLOOK"
     else
         set p_type = "AQUA_REFINED"
     endif
 else if ($data_type == "MODIS_T") then
-    set script_name = "modis_level2_combiner_historical.pl"
+    set script_name = "modis_level2_combiner_historical_job_index.pl"
     if ($processing_type == "QUICKLOOK") then
         set p_type = "TERRA_QUICKLOOK"
     else
@@ -74,7 +77,7 @@ else if ($data_type == "MODIS_T") then
     endif
 else
     setenv GHRSST_OBPG_USE_2019_NAMING_PATTERN true
-    set script_name = "generic_level2_combiner.pl"
+    set script_name = "generic_level2_combiner_job_index.pl"
     if ($processing_type == "QUICKLOOK") then
         set p_type = "VIIRS_QUICKLOOK"
     else
@@ -84,6 +87,5 @@ endif
 
 # Call the script to combine the files
 
-perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy >> $combiner_log_name
-
+perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy -job_index=$job_index >> $combiner_log_name
 exit
