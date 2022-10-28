@@ -19,11 +19,9 @@ sub delete_job {
 
     my $i_function_name   = shift;
     my $i_processing_type = shift;
+    my $job_name = shift;
 
     my $o_job_delete_status = 1;  # If cannot delete job, return 0.
-
-    # my $job_name = $ENV{HOME} . "/" . $i_function_name . "_". $i_processing_type . "_job_is_running.txt";    # NET edit.
-    my $job_name = $ENV{COMBINER_JOB_DIR} . "/" . $i_function_name . "_" . $i_processing_type . "_job_is_running.txt";
 
     if (-e $job_name) {
         # If job exists, remove it by removing the file.

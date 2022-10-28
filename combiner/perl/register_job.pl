@@ -24,8 +24,8 @@ sub register_job {
 
     my $o_job_register_status = 1;  # If cannot register job, return 0.
 
-    # my $o_job_name = $ENV{HOME} . "/" . $i_function_name . "_" . $i_processing_type . "_job_is_running.txt";    # NET edit.
-    my $o_job_name = $ENV{COMBINER_JOB_DIR} . "/" . $i_function_name . "_" . $i_processing_type . "_job_is_running.txt";
+    my $unique_id = int(rand(1000)) + 1;
+    my $o_job_name = $ENV{COMBINER_JOB_DIR} . "/" . $i_function_name . "_" . $i_processing_type . "_" . $unique_id . "_job_is_running.txt";
     my $o_job_age  = 0;
 
     my $can_register_job = 0;
