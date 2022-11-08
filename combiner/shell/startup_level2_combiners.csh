@@ -23,8 +23,8 @@ source /app/config/combiner_config    # NET edit (Docker container)
 
 # Get the input.
 
-if ($# != 6) then
-    echo "startup_modis_level2_combiners:ERROR, You must specify exactly 5 arguments: num_files_to_combine num_minutes_to_wait value_move_instead_of_copy data_type processing_type job_index"
+if ($# != 7) then
+    echo "startup_modis_level2_combiners:ERROR, You must specify exactly 6 arguments: num_files_to_combine num_minutes_to_wait value_move_instead_of_copy data_type processing_type job_index json_file"
     exit
 endif
 
@@ -43,6 +43,7 @@ set value_move_instead_of_copy = $3
 set data_type                  = $4
 set processing_type            = $5
 set job_index                  = $6
+set json_file                  = $7
 
 # Create the $HOME/logs directory if it does not exist yet    # NET edit.
 
@@ -58,6 +59,9 @@ set today_date = `date '+%m_%d_%y'`
 set random_number = `bash -c 'echo $RANDOM'`
 set combiner_log_name = "$log_top_level_directory/level2_combiner_{$data_type}_{$processing_type}_output_{$today_date}_{$random_number}.log"   # Create unique combiner log
 touch $combiner_log_name
+
+# Set the input file name as an environment variable
+setenv JSON_FILE $json_file
 
 # Determine which script to call with specific parameters based on data_type
 

@@ -27,9 +27,6 @@ setenv COMBINER_JOB_DIR /data/jobs    # NET edit. (Docker container)
 # Scratch directory to store temporary files and registry.
 setenv SCRATCH_AREA /data/scratch    # NET edit. (Docker container)
 
-# Combiner JSON file name
-setenv JSON_FILE "combiner_file_lists"
-
 # Parallelization
 setenv GHRSST_MODIS_L2_USE_PARALLEL_PROCESSING false
 
