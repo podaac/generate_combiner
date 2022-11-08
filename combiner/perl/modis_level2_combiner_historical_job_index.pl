@@ -389,7 +389,7 @@ if ($g_debug) {
 #
 
 my $scratch_area = $ENV{SCRATCH_AREA};
-my $l_actualize_status = actualize_directory($scratch_area);
+# my $l_actualize_status = actualize_directory($scratch_area);
 
 my @sst_sst4_filelist = @filtered_sst_sst4_names_without_md5_files;
 my $num_sst_sst4_files = scalar(@sst_sst4_filelist);
