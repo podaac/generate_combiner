@@ -1684,7 +1684,7 @@ sub perform_decompression_task_historical {
     if (!(-e $upper_level_output_directory)) {
         my $status_mkdir = mkdir_with_error_handling($upper_level_output_directory);
         # The mkdir function returns true if successful and false if failed.
-        if ($status_mkdir == 0) { exit(0); }
+        # if ($status_mkdir == 0) { exit(0); }
     }
 
     $o_uncompressed_filename = "$upper_level_output_directory/$name_without_bz_extension";
@@ -2305,7 +2305,7 @@ sub prepare_output_work_area_with_error_handling_historical {
     if (!(-e $output_directory)) {
         my $status_mkdir = mkdir_with_error_handling($output_directory);
         # The mkdir function returns true if successful and false if failed.
-        if ($status_mkdir == 0) { exit(0); }
+        # if ($status_mkdir == 0) { exit(0); }
     }
     
     $o_upper_level_output_directory = strip_trailing_slash($output_directory) . '/' . $i_processing_type;
