@@ -35,7 +35,7 @@ sub clean_up {
         if (!(-e $i_scratch_area)) {
             my $status_mkdir = mkdir_with_error_handling($i_scratch_area);
             # The mkdir function returns true if successful and false if failed.
-            if ($status_mkdir == 0) { exit(0); }
+            # if ($status_mkdir == 0) { exit(0); }
         }
 
         my $quarantine_directory = "$i_scratch_area/quarantine";
@@ -44,7 +44,7 @@ sub clean_up {
         if (!(-e $quarantine_directory)) {
             my $status_mkdir = mkdir_with_error_handling($quarantine_directory);
             # The mkdir function returns true if successful and false if failed.
-            if ($status_mkdir == 0) { exit(0); }
+            # if ($status_mkdir == 0) { exit(0); }
         }
         # Use the module File::Copy to do the move.
         if (-e $i_sst_filename) {
@@ -69,7 +69,7 @@ sub clean_up {
             if (!(-e $quarantine_directory)) {
                 my $status_mkdir = mkdir_with_error_handling($quarantine_directory);
                 # The mkdir function returns true if successful and false if failed.
-                if ($status_mkdir == 0) { exit(0); }
+                # if ($status_mkdir == 0) { exit(0); }
             }
             # Use the module File::Copy to do the move.
             if (-e $i_sst4_filename) {

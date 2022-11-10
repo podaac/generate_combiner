@@ -58,7 +58,7 @@ sub move_combined_file_to_final_location {
         my $status_mkdir = mkdir_with_error_handling($upper_level_output_directory);
         if ($status_mkdir == 0) { 
             log_this("ERROR",$g_routine_name,"MKDIR_FAILED $upper_level_output_directory");
-            exit(1);
+            # exit(1);
         }
     }
 
@@ -106,7 +106,7 @@ sub move_combined_file_to_final_location {
         my $status_mkdir = mkdir_with_error_handling($upper_level_output_directory);
         if ($status_mkdir == 0) { 
             log_this("ERROR",$g_routine_name,"MKDIR_FAILED $upper_level_output_directory");
-            exit(1);
+            # exit(1);
         }
     }
 
@@ -122,7 +122,7 @@ sub move_combined_file_to_final_location {
         my $status_mkdir = mkdir_with_error_handling($upper_level_output_directory);
         if ($status_mkdir == 0) { 
             log_this("ERROR",$g_routine_name,"MKDIR_FAILED $upper_level_output_directory");
-            exit(1);
+            # exit(1);
         }
     }
 

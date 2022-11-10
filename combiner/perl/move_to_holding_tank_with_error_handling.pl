@@ -54,7 +54,7 @@ sub move_to_holding_tank_with_error_handling {
           if (!(-e $i_scratch_area)) {
               my $status_mkdir = mkdir_with_error_handling($i_scratch_area);
               # The mkdir function returns true if successful and false if failed.
-              if ($status_mkdir == 0) { return; }
+            #   if ($status_mkdir == 0) { return; }
           }
 
           # The holding tank directory name is in scratch area.
@@ -67,7 +67,7 @@ sub move_to_holding_tank_with_error_handling {
           if (!(-e $holding_tank_directory_name)) {
               my $status_mkdir = mkdir_with_error_handling($holding_tank_directory_name);
               # The mkdir function returns true if successful and false if failed.
-              if ($status_mkdir == 0) { return; }
+            #   if ($status_mkdir == 0) { return; }
           }
 
           # Do the move.  The rename() function is destructive, i.e will overwrite an existing file.
