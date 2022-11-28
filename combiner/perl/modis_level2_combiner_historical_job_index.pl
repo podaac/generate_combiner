@@ -1241,7 +1241,7 @@ sub stage_input_files_for_combiner_historical {
 
     $o_oc_filename = $i_oc_filename;            # Set to default name.
 
-    my ($oc_name_in_list_flag,$o_index_found_to_sst4_filenames,$o_actual_oc_filename)   = is_oc_name_in_list($i_sst_filename,\@filtered_sst_sst4_names_without_md5_files);
+    my ($oc_name_in_list_flag,$o_index_found_to_sst4_filenames,$o_actual_oc_filename)   = is_oc_name_in_list($sst_filename_compressed_file,\@filtered_sst_sst4_names_without_md5_files);
     if ($debug_flag) {
 	log_this("DEBUG",$g_routine_name,"oc_name_in_list_flag [$oc_name_in_list_flag]");
 	log_this("DEBUG",$g_routine_name,"o_index_found_to_sst4_filenames[$o_index_found_to_sst4_filenames]");
@@ -1951,227 +1951,43 @@ sub is_oc_name_in_list {
     my $i_sst_filenames_ref        = shift;
 
     my $g_routine_name = 'is_oc_name_in_list:';
+    my @i_sst_filenames_list = @$i_sst_filenames_ref;  
+    my $o_oc_name_in_list_flag  = 0;                   # Flag set to 1 if found the OC file name.
+    my $o_index_found_to_filenames = 0;                # Index of OC file name if found.
+    my $o_actual_oc_filename = "DUMMY_OC_FILENAME";    # Actual OC file name
 
-    my $o_oc_name_in_list_flag  = 0;     # Flag set to 1 if found the OC file name.
-    my $o_index_found_to_filenames = 0;  # Index of OC file name if found.
-    my $o_actual_oc_filename = '';  # Return the actual name if found.
+    my $sst_full_name_to_search = $i_sst_full_name_to_search;
+    my $find         = "SST.nc";                            # Look for this string.
+    my $replace_with = "OC.nc";                             # Replace with this string.
+    $find            = quotemeta $find;                     # Escape regex metachars if present.
+    $sst_full_name_to_search =~ s/$find/$replace_with/g;  # Do the replacement of SST.nc to OC.nc
+    my $o_oc_file_name = $sst_full_name_to_search;
 
-    # Get the references.
-    my @filenames_list = @$i_sst_filenames_ref;
-
-    # Remove the directory name to get to the name only.
-    chomp($i_sst_full_name_to_search);
-    my @splitted_tokens = split(/\//,$i_sst_full_name_to_search);  # The slash has to be escaped.
-    my $num_tokens = @splitted_tokens;
-    my $name_to_search = $splitted_tokens[$num_tokens-1];          # Get just the name.   It is the last token.
-
-    my $look_for = "SST";
-    my $find_this_string = quotemeta $look_for;
-    my $replace_with = "OC";
-
-    $name_to_search =~ s/$find_this_string/$replace_with/; # Replace SST with OC.
-
-    # Do a sanity check on the name of the file for 2019 OBPG naming pattern.
-    if ($debug_flag) {
-	    log_this("DEBUG",$g_routine_name,"#0008:VARIABLE_CHECK:i_sst_full_name_to_search[$i_sst_full_name_to_search]");  # /data/dev/scratch/qchau/scratch_temp2/AQUA_QUICKLOOK/AQUA_MODIS.2019289042500.L2.SST.nc
-	    log_this("DEBUG",$g_routine_name,"#0008:VARIABLE_CHECK:name_to_search[$name_to_search]");                        # AQUA_MODIS.2019289042500.L2.OC.nc]
-    }
-    # Mon Oct 21 16:31:05 2019 DEBUG [is_oc_name_in_list:] #0008:VARIABLE_CHECK:i_sst_full_name_to_search[/data/dev/scratch/qchau/scratch_temp2/AQUA_QUICKLOOK/AQUA_MODIS.2019289042500.L2.SST.nc]
-    # Mon Oct 21 16:31:05 2019 DEBUG [is_oc_name_in_list:] #0008:VARIABLE_CHECK:name_to_search[AQUA_MODIS.2019289042500.L2.OC.nc]
-
-    my $old_oc_filename = "DUMMY_OLD_OC_FILENAME";
-    my $time_portion    = "";
-    if (index($i_sst_full_name_to_search,"L2.SST.nc") >= 0) {
-        # The OC files are behind so we have to look for the old name:
-        # From AQUA_MODIS.2019289042500.L2.OC.nc, we look for A2019289042500.L2_LAC_OC.nc
-        # pass
-        my @splitted_tokens = split(/\./,$i_sst_full_name_to_search); # The dot has to be escaped.
-        # The 2nd token may contain a T in it as 2019289T042500, we remove it.
-        # TODO: Comment next line once done testing.
-        #$splitted_tokens[1] = "2019289T042500";
-        my $pos_of_t_char = index($splitted_tokens[1],'T');
-	
-        if ($debug_flag) {
-            log_this("DEBUG",$g_routine_name,"#0008:VARIABLE_CHECK:splitted_tokens[1][$splitted_tokens[1]]");
-            log_this("DEBUG",$g_routine_name,"#0008:VARIABLE_CHECK:pos_of_t_char[$pos_of_t_char]");
+    # Check if oc file exsts
+    if (-e $o_oc_file_name) {
+        print "FOUND\n";
+        $o_actual_oc_filename = $o_oc_file_name;
+        $o_oc_name_in_list_flag = 1;
+        my ($index) = grep { @i_sst_filenames_list[$_] eq "$o_actual_oc_filename\n" } (0 .. @i_sst_filenames_list-1);          
+        $o_index_found_to_filenames = defined $index ? $index : -1;
+        
+        
+    # If the OC.nc file does not exist, check that it does not exist at a different seconds interval.
+    } else {
+        my @splitted_tokens = split(/\//,$o_oc_file_name);   # Split on backslash to get name only
+        my $oc_name_only = $splitted_tokens[-1];
+        $o_oc_file_name = find_new_oc_filename($i_sst_full_name_to_search,$oc_name_only);
+        if (-e $o_oc_file_name) {
+            print "FOUND BY TIME\n";
+            $o_actual_oc_filename = $o_oc_file_name;
+            $o_oc_name_in_list_flag = 1;
+            my ($index) = grep { @i_sst_filenames_list[$_] eq "$o_actual_oc_filename\n" } (0 .. @i_sst_filenames_list-1);          
+            $o_index_found_to_filenames = defined $index ? $index : -1;
         }
-
-        if ($pos_of_t_char >= 0) {
-            $time_portion = substr($splitted_tokens[1],0,$pos_of_t_char-1) . substr($splitted_tokens[1],$pos_of_t_char+1);
-        } else {
-            $time_portion = $splitted_tokens[1];
-        }
-
-        if ($debug_flag) {
-            log_this("DEBUG",$g_routine_name,"#0007:time_portion [$time_portion]");
-        }
-
-        # Remember that the old OC file name has the old date format of yyyydoyhhmmss so we have to build the day of year.
-        my $year_portion  = substr($splitted_tokens[1],0,4); # From 20191016042500 get 2019
-        my $month_portion = substr($splitted_tokens[1],4,2); # From 20191016042500 get 10
-        my $day_portion   = substr($splitted_tokens[1],6,2); # From 20191016042500 get 16
-        my $rest_of_field = substr($time_portion,7);         # From 20191016042500 get 042500
-        my $day_of_year_portion = convert_year_mm_dd_to_doy($year_portion,$month_portion,$day_portion);
-        # If the number of characters is less than 3, we prefill with zeros.
-        if (length("$day_of_year_portion") < 3) {
-            $day_of_year_portion = sprintf("%03d", $day_of_year_portion); 
-        }
-
-        $time_portion = $year_portion . $day_of_year_portion . $rest_of_field;
-
-        if (index($splitted_tokens[0],"AQUA") >= 0) {
-            $old_oc_filename = 'A' . $time_portion . ".L2_LAC_OC.nc";
-        } elsif (index($splitted_tokens[0],"TERRA") >= 0) {
-            $old_oc_filename = 'T' . $time_portion . ".L2_LAC_OC.nc";
-        } elsif (index($splitted_tokens[0],"VIIRS") >= 0) {
-            $old_oc_filename = 'V' . $time_portion . ".L2_LAC_OC.nc";
-        }
-
-        if ($debug_flag) {
-            log_this("DEBUG",$g_routine_name,"#0008:time_portion [$time_portion]");
-            log_this("DEBUG",$g_routine_name,"#0008:year_portion[$year_portion]");
-            log_this("DEBUG",$g_routine_name,"#0008:month_portion[$month_portion]");
-            log_this("DEBUG",$g_routine_name,"#0008:day_portion[$day_portion]");
-            log_this("DEBUG",$g_routine_name,"#0008:rest_of_field[$rest_of_field]");
-            log_this("DEBUG",$g_routine_name,"#0008:day_of_year_portion[$day_of_year_portion]");
-            log_this("DEBUG",$g_routine_name,"#0008:i_sst_full_name_to_search[$i_sst_full_name_to_search]");
-        }
-
-        # Build the full path name of the old oc filename.
-
-        #my $directory_name_only = dirname($i_sst_full_name_to_search);
-        #$old_oc_filename = $directory_name_only . '/' . $old_oc_filename;
-        #log_this("DEBUG",$g_routine_name,"#0008:old_oc_filename[$old_oc_filename]");
     }
 
-    if ($debug_flag) {
-	    log_this("DEBUG",$g_routine_name,"#0008:VARIABLE_CHECK:time_portion[$time_portion]");
-	    log_this("DEBUG",$g_routine_name,"#0008:VARIABLE_CHECK:old_oc_filename[$old_oc_filename]");
-    }
-    #log_this("DEBUG",$g_routine_name,"#0008:early#exit#0030");
-    #exit(0);
-
-    # Loop through each item in filenames_list for a match of name_to_search variable 
-
-    my $found_matching_oc_flag = 0;
-    my $index_to_filenames     = 0;
-    my $filenames_list_size    = scalar(@filenames_list);
-
-    my $debug_this_function = 0;
-    #my $debug_this_function = 1;
-    if ($debug_this_function) {
-        print "modis_level2_combiner::is_oc_name_in_list: name_to_search [$name_to_search]\n";
-        print "modis_level2_combiner::is_oc_name_in_list: found_matching_oc_flag [$found_matching_oc_flag]\n";
-        print "modis_level2_combiner::is_oc_name_in_list: filenames_list_size    [$filenames_list_size]\n";
-    }
-
-    my $name_from_list = "";
-    my $o_actual_new_oc_filename = ""; 
-    while (($found_matching_oc_flag == 0) && ($index_to_filenames < $filenames_list_size)) {
-        # Ignore the .md5 file
-        if (rindex($filenames_list[$index_to_filenames],".md5") >= 0) {
-            # Do nothing;
-        } else {
-         
-            $name_from_list = $filenames_list[$index_to_filenames];
-            chomp($name_from_list);
-
-            # Perform a regular expression matching.
-            if ($debug_this_function) {
-                print "modis_level2_combiner::---------\n";
-                print "modis_level2_combiner::is_oc_name_in_list: name_from_list [$name_from_list]\n";
-                print "modis_level2_combiner::is_oc_name_in_list: name_to_search [$name_to_search]\n";
-            }
-
-            if ($name_from_list =~ m/$name_to_search/) {
-                $found_matching_oc_flag = 1;
-                $o_index_found_to_filenames = $index_to_filenames;  # Save this index to pass back.
-            }
-
-            # If the new OC file name does not have the correct second field, we also look for it.
-            if ($debug_flag) {
-                log_this("DEBUG",$g_routine_name,"name_from_list [$name_from_list], name_to_search [$name_to_search]");
-            }
-
-            my $new_oc_filename = $name_to_search;
-            $o_actual_new_oc_filename = find_new_oc_filename($name_from_list,$new_oc_filename);
-            
-            if ($debug_flag) {
-                log_this("DEBUG",$g_routine_name,"name_from_list [$name_from_list], o_actual_new_oc_filename [$o_actual_new_oc_filename]");
-            }
-            
-            # If we had found the actual new OC filename, we save it to $o_actual_oc_filename and exit this loop.
-            if ($o_actual_new_oc_filename ne '') {
-                $o_actual_oc_filename = $o_actual_new_oc_filename;
-                last;
-            }
-
-            if ($debug_this_function) {
-                print "modis_level2_combiner::is_oc_name_in_list: index_to_filenames[$index_to_filenames]\n";
-                print "modis_level2_combiner::is_oc_name_in_list: name_from_list [$name_from_list]\n";
-                print "modis_level2_combiner::is_oc_name_in_list: name_to_search [$name_to_search]\n";
-                print "modis_level2_combiner::is_oc_name_in_list: found_matching_oc_flag [$found_matching_oc_flag]\n";
-            }
-
-            # Look for the old Ocean Color name: A2019289042500.L2_LAC_OC.nc
-            if ($name_from_list =~ m/$old_oc_filename/) {
-                $found_matching_oc_flag = 1;
-                $o_index_found_to_filenames = $index_to_filenames;  # Save this index to pass back.
-            }
-
-            if ($debug_this_function) {
-                print "modis_level2_combiner::is_oc_name_in_list: name_from_list [$name_from_list]\n";
-                print "modis_level2_combiner::is_oc_name_in_list: old_oc_filename [$old_oc_filename]\n";
-                print "modis_level2_combiner::is_oc_name_in_list: found_matching_oc_flag [$found_matching_oc_flag]\n";
-            }
-
-            # Adding logic to handle OBPG some OC file in HDF format.  This is not pretty but it works.
-            # Inorder to look for the HDF file names, we have to remove the .nc file extension.
-            if (($found_matching_oc_flag == 0) && (index($name_to_search,".nc") >= 0)) {
-                $name_without_extension = basename($name_to_search,".nc"); # Get the name without the extension.
-                if ($name_from_list =~ m/$name_without_extension/) {
-                    $found_matching_oc_flag = 1;
-                    $o_index_found_to_filenames = $index_to_filenames;  # Save this index to pass back.
-                    log_this("INFO",$g_routine_name,"USING_HDF_VERSION_OF_OC_FILE $name_from_list TO_COMBINE_WITH $i_sst_full_name_to_search");
-                }
-            }
-        }    # End else
-
-        # Look for old OC file name.
-        # name_from_list [/data/dev/scratch/qchau/IO/modis/MODIS_AQUA_L2_SST_OBPG_QUICKLOOK/AQUA_MODIS.20191204T132501.L2.SST4.nc], old_oc_filename [A2019338132501.L2_LAC_OC.nc] 
-
-        if ($debug_flag) {
-            log_this("DEBUG",$g_routine_name,"name_from_list [$name_from_list], old_oc_filename [$old_oc_filename]");
-        }
-            
-        $o_actual_oc_filename = find_old_oc_filename($name_from_list,$old_oc_filename);
-
-        if ($debug_flag) {
-            log_this("DEBUG",$g_routine_name,"#0010:old_oc_filename[$old_oc_filename]");
-            log_this("DEBUG",$g_routine_name,"#0010:o_actual_oc_filename [$o_actual_oc_filename]");
-        }
-
-        if ($o_actual_oc_filename ne '') {
-             $found_matching_oc_flag = 1;
-        }
-        #exit(0);
-
-        $index_to_filenames = $index_to_filenames + 1;
-    }    # End while.
-
-    $o_oc_name_in_list_flag = $found_matching_oc_flag; # Save the value of the flag to return.
-    
-    if ($debug_this_function) {
-        print "modis_level2_combiner::is_oc_name_in_list: o_oc_name_in_list_flag     [$o_oc_name_in_list_flag]\n";
-        print "modis_level2_combiner::is_oc_name_in_list: o_index_found_to_filenames [$o_index_found_to_filenames]\n";
-        print "modis_level2_combiner::is_oc_name_in_list: $filenames_list[$o_index_found_to_filenames]\n";
-    }
-    #exit(0);
-
-    #log_this("DEBUG",$g_routine_name,"o_actual_oc_filename [$o_actual_oc_filename]");
-    #log_this("DEBUG",$g_routine_name,"#0008:early#exit#0030");
-    #exit(0);
     return ($o_oc_name_in_list_flag,$o_index_found_to_filenames,$o_actual_oc_filename);
+    
 }
 
 #------------------------------------------------------------------------------------------------------------------------
