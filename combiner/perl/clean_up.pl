@@ -55,6 +55,7 @@ sub clean_up {
 
     if (($g_holding_tank_move_flag == 1) && ($i_file_created_successfully_flag == 1)) {
         move_to_holding_tank_with_error_handling($i_sst4_filename,$i_scratch_area);
+        print "INFO $g_routine_name SST4 FILE MOVED TO SCRATCH: $i_sst4_filename\n";
     } else {
         # Only remove the file if the combined was successful.
         if ((-e $i_sst4_filename) && ($i_file_created_successfully_flag == 1)) {
@@ -80,6 +81,7 @@ sub clean_up {
     }
     if (($g_holding_tank_move_flag == 1) && ($i_file_created_successfully_flag == 1)) {
         move_to_holding_tank_with_error_handling($i_oc_filename,$i_scratch_area);
+        print "INFO $g_routine_name OC FILE MOVED TO SCRATCH: $i_oc_filename\n";
     } else {
         # Only remove the file if the combined was successful.
         if ((-e $i_oc_filename) && ($i_file_created_successfully_flag == 1))  {
