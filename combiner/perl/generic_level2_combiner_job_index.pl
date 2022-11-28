@@ -1193,7 +1193,17 @@ sub stage_input_files_for_combiner_historical {
     }
 
     my $night_file_token = $g_gcjm->get_night_file_token_in_name($i_data_source);
-    
+
+    # Check holding tank if could not find SST3 file
+
+    if ($sst4_filename_compressed_file eq "DUMMY_SST3_FILENAME") {
+        my ($r_matching_sst4_name,$r_matching_oc_name) = get_names_from_holding_tank($i_sst_filename,$scratch_area);
+        # If the named of the LAC_OC returned is not empty, we save it.
+        if ($r_matching_sst4_name ne "") {
+            $sst4_filename_compressed_file = $r_matching_sst4_name;
+        }
+    }
+        
     my ($status,$i_sst4_filename) = perform_decompression_task_historical($night_file_token,$sst4_filename_compressed_file,$i_processing_type,$decompress_to_directory,$perform_move_instead_of_copy_flag,$num_combined_files_created,$num_sst_sst4_files);
     #my ($status,$i_sst4_filename) = perform_decompression_task_historical("SST4",$sst4_filename_compressed_file,$i_processing_type,$decompress_to_directory,$perform_move_instead_of_copy_flag,$num_combined_files_created,$num_sst_sst4_files);
 #exit(0);
@@ -1710,17 +1720,17 @@ sub get_names_from_holding_tank {
 
     my $look_for = "SST";
     my $find_this_string = quotemeta $look_for;
-    my $replace_with = "SST4";
+    my $replace_with = "SST3";
 
     $name_to_search =~ s/$find_this_string/$replace_with/; # Replace SST with SST4.
 
-    # Build the full name of the SST4 to search for.  If it exists in the holding tank, we are good and save the SST4 name in o_matching_sst4_name variable.
+    # Build the full name of the SST3 to search for.  If it exists in the holding tank, we are good and save the SST4 name in o_matching_sst4_name variable.
     my $full_sst4_name_to_search = $i_scratch_area . "/holding_tank/" . $name_to_search;
     if (-e $full_sst4_name_to_search ) {
         $o_matching_sst4_name = $full_sst4_name_to_search;
     }
 
-    $look_for = "SST4";
+    $look_for = "SST3";
     $find_this_string = quotemeta $look_for;
     $replace_with = "OC";
     $name_to_search =~ s/$find_this_string/$replace_with/; # Replace SST4 with OC 

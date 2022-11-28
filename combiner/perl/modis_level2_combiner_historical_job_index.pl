@@ -639,6 +639,7 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
                                                                                                                                         $num_combined_files_created,
                                                                                                                                         $actual_number_of_granules_to_process,
                                                                                                                                         $scratch_area);
+        log_this("INFO",$g_routine_name,"STAGE_INPUT_FILES_FOR_COMBINER_HISTORICAL:o_status,i_sst_filename,i_sst4_filename,i_oc_filename: [$o_status] [$i_sst_filename] [$i_sst4_filename] [$i_oc_filename]");
 
         # If cannot stage the files, move on to the next SST name in the list.
 
@@ -1172,6 +1173,16 @@ sub stage_input_files_for_combiner_historical {
     my $sst_filename_compressed_file  = $sst_sst4_filelist[$index_to_sst_sst4_list];
     chomp ($sst_filename_compressed_file);
     my $sst4_filename_compressed_file = get_matching_sst4_filename_historical($sst_filename_compressed_file);
+
+    # Seach for SST4 file in holding tank if not found
+
+    if ($sst4_filename_compressed_file eq "DUMMY_SST4_FILENAME") {
+        my ($r_matching_sst4_name,$r_matching_oc_name) = get_names_from_holding_tank($i_sst_filename,$scratch_area);
+        # If the named of the LAC_OC returned is not empty, we save it.
+        if ($r_matching_sst4_name ne "") {
+            $sst4_filename_compressed_file = $r_matching_sst4_name;
+        }
+    }
     
     # Remove the carriage return
 
@@ -1355,6 +1366,16 @@ sub create_stage_input_filenames {
     chomp ($sst_filename_compressed_file);
     my $sst4_filename_compressed_file = get_matching_sst4_filename_historical($sst_filename_compressed_file);
     my $i_sst_filename                = $sst_filename_compressed_file;
+
+    # Check holding tank for SST4 file if it was not found
+
+    if (($sst4_filename_compressed_file eq "DUMMY_SST4_FILENAME")) {
+        my ($r_matching_sst4_name,$r_matching_oc_name) = get_names_from_holding_tank($i_sst_filename,$scratch_area);
+        # If the named of the LAC_OC returned is not empty, we save it.
+        if ($r_matching_sst4_name ne "") {
+            $sst4_filename_compressed_file = $r_matching_sst4_name;
+        }
+    }
     
     # Remove the carriage return
 
