@@ -26,7 +26,6 @@ To compile IDL files:
 `docker build --build-arg IDL_INSTALLER=idlxxx-linux.tar.gz --build-arg IDL_VERSION=idlxx --tag combiner:0.1 .`
 
 Build arguments:
-- LICENSE_SERVER: The IP address of an IDL license server.
 - IDL_INSTALLER: The file name of the IDL installer.
 - IDL_VERSION: The version of IDL that will be installed.
 
@@ -55,3 +54,23 @@ VIIRS:
 **NOTES**
 - In order for the commands to execute the `/combiner/` directories will need to point to actual directories on the system.
 - IDL is installed and configured by the Dockerfile.
+
+## aws infrastructure
+
+The combiner includes the following AWS services:
+- AWS Batch job definition.
+- CloudWatch log group.
+- Elastic Container Registry repository.
+
+## terraform 
+
+Deploys AWS infrastructure and stores state in an S3 backend using a DynamoDB table for locking.
+
+To deploy:
+1. Edit `terraform.tfvars` for environment to deploy to.
+2. Edit `terraform_conf/backed-{prefix}.conf` for environment deploy.
+3. Initialize terraform: `terraform init -backend-config=terraform_conf/backend-{prefix}.conf`
+4. Plan terraform modifications: `terraform plan -out=tfplan`
+5. Apply terraform modifications: `terraform apply tfplan`
+
+`{prefix}` is the account or environment name.
