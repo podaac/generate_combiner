@@ -2,6 +2,8 @@
 
 The combiner processes and combines files for MODIS Aqua and MODIS Terra (SST/SST4/OC) as well as VIIRS (SST/SST3). Input data is created from the downloader component.
 
+Top-level Generate repo: https://github.com/podaac/generate
+
 ## pre-requisites to building
 
 An IDL license for executing IDL within the Docker container. A license file obtained from the vendor ending in `.dat` should be placed in the `idl/install` directory.
