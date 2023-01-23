@@ -49,16 +49,16 @@ resource "aws_batch_job_definition" "generate_batch_jd_combiner" {
         {
             "name": "combiner",
             "efsVolumeConfiguration": {
-            "fileSystemId": "${data.aws_efs_file_system.aws_efs_combiner.file_system_id}",
-            "rootDirectory": "/"
+            "fileSystemId": "${data.aws_efs_file_system.aws_efs_generate.file_system_id}",
+            "rootDirectory": "/combiner"
             }
         },
         {
             "name": "processor",
             "efsVolumeConfiguration": {
-            "fileSystemId": "${data.aws_efs_file_system.aws_efs_processor.file_system_id}",
-            "rootDirectory": "/input"
-            }         
+            "fileSystemId": "${data.aws_efs_file_system.aws_efs_generate.file_system_id}",
+            "rootDirectory": "/processor/input"
+            }
         }
     ]
   }
