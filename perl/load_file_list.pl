@@ -11,6 +11,7 @@
 #
 #------------------------------------------------------------------------------------------------
 
+use File::Basename;
 use JSON;
 
 sub load_file_list {
@@ -27,7 +28,7 @@ sub load_file_list {
     if ($job_index == -235) {
         $index = $ENV{AWS_BATCH_JOB_ARRAY_INDEX};
     } else {
-        $index = $job_index
+        $index = $job_index;
     }
 
     # JSON data
@@ -49,3 +50,12 @@ sub load_file_list {
 
     return ($status, \@file_list_ref);    
 }
+
+# ------------------------------------------------------------------------------
+
+# my $download_dir = "/data/combiner/downloads/MODIS_AQUA_L2_SST_OBPG_REFINED";
+# my $processing_type = "REFINED";
+# my $job_index = 0;
+
+# my ($status,$file_list_ref) = load_file_list($download_dir, $processing_type, $job_index);
+# print "@$file_list_ref\n";
