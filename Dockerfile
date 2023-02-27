@@ -8,6 +8,7 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/libXpm.so.4.11.0 /usr/lib/x86_64-linux-gnu/l
 # FROM stage0 as stage1
 RUN /bin/mkdir /data
 COPY . /app
+RUN /bin/chmod +x /app/python/notify.py
 
 # Stage 2 - IDL installation
 # FROM stage1 AS stage2
@@ -30,8 +31,16 @@ RUN /usr/bin/yes | /usr/local/bin/cpan App::cpanminus \
     && /usr/local/bin/cpanm File::NFSLock \
     && /usr/local/bin/cpanm JSON
 
-# Stage 3 - Execute code
+# Stage 3 - Install Python
 # FROM stage2 as stage3
+RUN apt update && apt install -y software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa \
+    && apt install -y python3 python3-pip python3-venv \
+    && /usr/bin/python3 -m venv /app/env \
+    && /app/env/bin/pip install boto3
+
+# Stage 4 - Execute code
+# FROM stage3 as stage4
 LABEL version="0.1" \
     description="Containerized Generate: Combiner"
 ENTRYPOINT [ "/bin/tcsh", "/app/shell/startup_level2_combiners.csh" ]
