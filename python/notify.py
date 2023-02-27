@@ -1,4 +1,5 @@
-#!/app/env/bin/python3
+#!/home/tebaldi/env/combiner/bin/python3
+# /app/env/bin/python3
 """Logs and sends email notification when downloader encounters an error.
 
 Logs the error message.
@@ -11,6 +12,7 @@ import datetime
 import time
 import logging
 import os
+import sys
 
 # Third-party imports
 import boto3
@@ -22,11 +24,10 @@ TOPIC_STRING = "batch-job-failure"
 def notify(sigevent_type, sigevent_description, sigevent_data):
     """Handles error events."""
     
-    status = 1
     logger = get_logger()
     log_event(sigevent_type, sigevent_description, sigevent_data, logger)
     if sigevent_type == "ERROR": publish_event(sigevent_type, sigevent_description, sigevent_data, logger)
-    return status
+    sys.exit(0)
     
 def get_logger():
     """Return a formatted logger object."""
@@ -38,7 +39,7 @@ def get_logger():
         logger.setLevel(logging.DEBUG)
 
         # Create a handler to console and set level
-        console_handler = logging.StreamHandler()
+        console_handler = logging.StreamHandler(sys.stdout)    # Log to standard out to support IDL SPAWN
 
         # Create a formatter and add it to the handler
         console_format = logging.Formatter("%(asctime)s - %(module)s - %(levelname)s : %(message)s")
@@ -108,7 +109,7 @@ def log_event(sigevent_type, sigevent_description, sigevent_data, logger):
     except botocore.exceptions.ClientError as e:
         logger.error("Failed to log to CloudWatch.")
         logger.error(f"Error - {e}")
-        exit(1)
+        sys.exit(1)
         
 def log_to_job_stream(sigevent_type, sigevent_description, sigevent_data, logger):
     """Log event details to current Batch job log stream."""
@@ -145,7 +146,7 @@ def publish_event(sigevent_type, sigevent_description, sigevent_data, logger):
     except botocore.exceptions.ClientError as e:
         logger.error("Failed to list SNS Topics.")
         logger.error(f"Error - {e}")
-        exit(1)
+        sys.exit(1)
     for topic in topics["Topics"]:
         if TOPIC_STRING in topic["TopicArn"]:
             topic_arn = topic["TopicArn"]
@@ -167,7 +168,7 @@ def publish_event(sigevent_type, sigevent_description, sigevent_data, logger):
     except botocore.exceptions.ClientError as e:
         logger.error(f"Failed to publish to SNS Topic: {topic_arn}.")
         logger.error(f"Error - {e}")
-        exit(1)
+        sys.exit(1)
     
     logger.info(f"Message published to SNS Topic: {topic_arn}.")
     
