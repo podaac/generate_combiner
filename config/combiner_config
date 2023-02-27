@@ -14,6 +14,7 @@ setenv GHRSST_SIGEVENT_URL http://test.test.com:8080
 setenv GHRSST_PERL_LIB_DIRECTORY /app/perl    # NET edit. (Docker container)
 setenv GHRSST_IDL_LIB_DIRECTORY /app/idl    # NET edit. (Docker container)
 setenv GHRSST_SHELL_LIB_DIRECTORY /app/shell    # NET edit. (Docker container)
+setenv GHRSST_PYTHON_LIB_DIRECTORY /app/python
 
 # Configuration files
 setenv GHRSST_DATA_CONFIG_FILE /app/config/ghrsst_data_config_file.dat    # NET edit. (Docker container)
