@@ -71,8 +71,6 @@ FUNCTION  modis_notify_operator, routine_name, msg_type, msg, email, sigevent, t
    ; Exit if encountered error
    IF (exit_status NE 0 ) THEN BEGIN
       PRINT, "ERROR encountered when calling system command: ", system_command_string
-      PRINT, "ERROR message..."
-      FOREACH element, error DO PRINT, element
       PRINT, "Exiting program."
       EXIT, status = 1
    ENDIF
