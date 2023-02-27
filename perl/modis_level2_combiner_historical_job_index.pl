@@ -178,7 +178,7 @@ GetOptions("max_files=i"                     => \$max_num_files_to_process,
            "skip_additional_day=s"           => \$skip_additional_day_file_flag,
            "perform_move_instead_of_copy=s"  => \$perform_move_instead_of_copy_flag,
            "test_only=s"                     => \$test_only_flag,
-           "job_index=i"                     => \$job_index);
+           "job_index=i"                     => \int($job_index));
 
 # Do a sanity check on required parameters.
 
@@ -194,7 +194,7 @@ if ((($data_source_flag eq '') || ($processing_type_flag eq ''))  ||
     print "\n";
     print "    perl modis_level2_combiner.pl -data_source=MODIS_A -processing_type=AQUA_QUICKLOOK  -max_files=10 -threshold_to_wait=35 -perform_move_instead_of_copy=yes\n";
     print "\n";
-    exit(0);
+    exit(1);
 }
 
 # Get the number of files to process for each batch.
@@ -2309,7 +2309,7 @@ sub proceed_with_processing_sst_file {
         $last_modified_time_of_sst = (stat($i_staged_sst_filename))[9];  # Get last modified time in seconds since 1970
     } else {
         log_this("ERROR",$g_routine_name,"Neither files were found $i_sst_filename $i_staged_sst_filename");
-        exit(0);
+        exit(1);
     }
 
     $seconds_difference_between_sst_and_now = $time_now - $last_modified_time_of_sst;

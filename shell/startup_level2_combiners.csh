@@ -25,7 +25,7 @@ source /app/config/combiner_config    # NET edit (Docker container)
 
 if ($# != 7) then
     echo "startup_modis_level2_combiners:ERROR, You must specify exactly 6 arguments: num_files_to_combine num_minutes_to_wait value_move_instead_of_copy data_type processing_type job_index json_file"
-    exit
+    exit 1
 endif
 
 # Arguments:
