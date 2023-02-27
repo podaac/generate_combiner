@@ -119,19 +119,9 @@ if ($? == -1) {
 
 #------------------------------------------------------------------------------------------------------------------------
 
-# my $routine_name="ghrsst_notify_operator.pl";
-# my $msg_type = "information";
-# my $msg = "hello there";
-# my $email = "Qui.T.Chau@jpl.nasa.gov";
-# my $sigevent = "SIGEVENT=http://lanina.jpl.nasa.gov:8100&category=UNCATEGORIZED&provider=jpl";
-# my $temp_dir = "/tmp/";
-# my $msg2report = 7;
-#
-#ghrsst_notify_operator($routine_name,$msg_type,$msg,$email,$sigevent,$temp_dir,$msg2report);
-
 # my $g_routine_name="ghrsst_notify_operator.pl";
 # my $sigevent_type = "warning";
-# my $sigevent_email_to = "nicole.tebaldi@jpl.nasa.gov";
+# my $sigevent_email_to = "test@test.com";
 # my $temp_dir = "/tmp/";
 # my $sigevent_msg = "Test warning message.";
 # my $sigevent_clause = "SIGEVENT=sigevent_url&category=GENERATE&provider=jpl";
