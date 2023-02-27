@@ -1,6 +1,6 @@
 #!/home/tebaldi/env/combiner/bin/python3
 # /app/env/bin/python3
-"""Logs and sends email notification when downloader encounters an error.
+"""Logs and sends email notification when combiner encounters an error.
 
 Logs the error message.
 Pusblishes error message to SNS Topic.
@@ -57,27 +57,38 @@ def log_event(sigevent_type, sigevent_description, sigevent_data, logger):
     # Log to batch log stream
     log_to_job_stream(sigevent_type, sigevent_description, sigevent_data, logger)
     
-    # Log to downloader error log stream
+    # Log to combiner error log stream
     logs = boto3.client("logs")
     try:
         # Locate log group
-        describe_response = logs.describe_log_groups(
-            logGroupNamePattern="downloader-errors"
+        describe_group_response = logs.describe_log_groups(
+            logGroupNamePattern="combiner-errors"
         )
-        log_group_name = describe_response["logGroups"][0]["logGroupName"]
+        log_group_name = describe_group_response["logGroups"][0]["logGroupName"]
         
-        # Create log stream
-        log_stream_name = f"downloader-batch-job-error-{datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S.%f')}"
-        create_response = logs.create_log_stream(
+        # Find or create log stream - New creation happens every hour
+        log_stream_name = f"{os.getenv('AWS_BATCH_JQ_NAME')}-combiner-job-error-{datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H')}0000"
+        describe_stream_response = logs.describe_log_streams(
             logGroupName=log_group_name,
-            logStreamName=log_stream_name
+            logStreamNamePrefix=log_stream_name
         )
+        if len(describe_stream_response["logStreams"]) == 0:       
+            create_response = logs.create_log_stream(
+                logGroupName=log_group_name,
+                logStreamName=log_stream_name
+            )
+        else:
+            log_stream_name=describe_stream_response["logStreams"][0]["logStreamName"]
         
         # Send logs
         log_events = [
             {
                 "timestamp": int(time.time() * 1000),
-                "message": "Downloader job ERROR encountered."
+                "message": "==================================================="
+            },
+            {
+                "timestamp": int(time.time() * 1000),
+                "message": "Combiner job ERROR encountered."
             },
             {
                 "timestamp": int(time.time() * 1000),
@@ -153,7 +164,7 @@ def publish_event(sigevent_type, sigevent_description, sigevent_data, logger):
             
     # Publish to topic
     subject = f"Generate Batch Job Failure: {os.getenv('SIGEVENT_SOURCE')}"
-    message = f"Generate AWS Batch downloader job has encountered an error.\n" \
+    message = f"Generate AWS Batch combiner job has encountered an error.\n" \
         + f"Job Identifier: {os.getenv('AWS_BATCH_JOB_ID')}.\n" \
         + f"Job Queue: {os.getenv('AWS_BATCH_JQ_NAME')}.\n" \
         + f"Error type: {sigevent_type}.\n" \
