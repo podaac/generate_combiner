@@ -10,12 +10,6 @@ resource "aws_ecr_repository" "combiner" {
   }
 }
 
-# CloudWatch Logs
-resource "aws_cloudwatch_log_group" "generate_cw_log_group_combiner" {
-  name              = "/aws/batch/job/${var.prefix}-combiner/"
-  retention_in_days = 120
-}
-
 # Job Definition
 resource "aws_batch_job_definition" "generate_batch_jd_combiner" {
   name                  = "${var.prefix}-combiner"
@@ -23,10 +17,11 @@ resource "aws_batch_job_definition" "generate_batch_jd_combiner" {
   container_properties  = <<CONTAINER_PROPERTIES
   {
     "image": "${aws_ecr_repository.combiner.repository_url}:latest",
+    "jobRoleArn": "${data.aws_iam_role.batch_job_role.arn}",
     "logConfiguration": {
         "logDriver" : "awslogs",
         "options": {
-            "awslogs-group" : "${aws_cloudwatch_log_group.generate_cw_log_group_combiner.name}"
+            "awslogs-group" : "${data.aws_cloudwatch_log_group.cw_log_group.name}"
         }
     },
     "mountPoints": [
