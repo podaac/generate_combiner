@@ -12,17 +12,23 @@
 #
 #------------------------------------------------------------------------------------------------
 
+#
 # Location of GHRSST Perl and IDL library functions.
+#
+$GHRSST_PERL_LIB_DIRECTORY   = $ENV{GHRSST_PERL_LIB_DIRECTORY};
+$GHRSST_IDL_LIB_DIRECTORY    = $ENV{GHRSST_IDL_LIB_DIRECTORY};
+$GHRSST_PYTHON_LIB_DIRECTORY = $ENV{GHRSST_PYTHON_LIB_DIRECTORY};
 
-$GHRSST_PERL_LIB_DIRECTORY = $ENV{GHRSST_PERL_LIB_DIRECTORY};
-$GHRSST_IDL_LIB_DIRECTORY  = $ENV{GHRSST_IDL_LIB_DIRECTORY};
+use feature "switch";
+no if ($] >= 5.018), 'warnings' => 'experimental';
 
 sub ghrsst_notify_operator { 
 
 my $o_status = 0;
 
+#
 # Get inputs
-
+#
 my $routine_name = shift;
 my $msg_type     = shift; 
 my $msg          = shift; 
@@ -42,34 +48,58 @@ my $sigevent_data = shift;
 #   6=warning+information
 #   7=report all messages
 
-my $idl_argument_strings = "";
-my $rt_flag = "";
-my $call_system_command_str = "";
-
-$idl_argument_strings = "-args \"$routine_name\" \"$msg_type\" \"$msg\" \"$email\"   \"$sigevent\" \"$temp_dir\" \"$msg2report\" \"$sigevent_data\" ";
+#
+# Determine if message should be reported
+#
+my $report_event = 0;
+for($msg2report) {
+    when(1) {
+        if($msg_type == "error") { $report_event = 1; }
+    }
+    when(2) {
+        if($msg_type == "warning") { $report_event = 1; }
+    }
+    when(3) {
+        if($msg_type == "error" || $msg_type == "warning") { $report_event = 1; }
+    }
+    when(4) {
+        if($msg_type == "information") { $report_event = 1; }
+    }
+    when(5) {
+        if($msg_type == "error" || $msg_type == "information") { $report_event = 1; }
+    }
+    when(6) {
+        if($msg_type == "warning" || $msg_type == "information") { $report_event = 1; }
+    }
+    when(7) {
+        $report_event = 1;
+    }
+    default { $report_event = 0 }    
+}
 
 #
-# Create the argument lists to system command.
+# Report message if necessary
 #
-
-my @args = ("/usr/local/bin/idl");
-
-#
-# Make the system call with arguments from idl_argument_strings variable.
-#
-
-$rt_flag = "-quiet -rt=$GHRSST_IDL_LIB_DIRECTORY/ghrsst_notify_operator.sav";
-$call_system_command_str = "$args[0] $rt_flag $idl_argument_strings";
-
-#print "call_system_command_str [$call_system_command_str]\n";
-#exit(0);
-
-system("$call_system_command_str")  == 0 or die "ghrsst_notify_operator: $call_system_command_str failed: $?";
+my $sigevent_type = "";
+if($report_event) {
+    if($msg_type eq "information") {
+        $sigevent_type = "INFO";
+    } elsif($msg_type eq "warning") {
+        $sigevent_type = "WARN";
+    } elsif($msg_type eq "error") {
+        $sigevent_type = "ERROR";
+    } else {
+        die ("Invalid message type sent to ghrsst_notify_operator: $msg_type\n"); 
+    }
+    
+    $python_argument_strings = "-t \"$sigevent_type\" -d \"$routine_name:$msg\" -i \"$sigevent_data\"";
+    $call_system_command_str = "$GHRSST_PYTHON_LIB_DIRECTORY/notify.py $python_argument_strings";
+    system("$call_system_command_str")  == 0 or die "ghrsst_notify_operator: $call_system_command_str failed: $?";
+}
 
 #
 # Check for errors.
 #
-
 if ($? == -1) {
     print "ghrsst_notify_operator: system $args[0] < $args[1] failed to execute: $?\n";
     $o_status = 1;
@@ -77,8 +107,8 @@ if ($? == -1) {
     print "ghrsst_notify_operator: Cannot find file $args[1].\n";
     $o_status = 1;
 } elsif ($? == 0){
-#            print "ghrsst_notify_operator: system $args[0] < $args[1] executed with: $?\n";
-#            print "ghrsst_notify_operator: Everything is OK.\n";
+    print "ghrsst_notify_operator: system $args[0] < $args[1] executed with: $?\n";
+    print "ghrsst_notify_operator: Everything is OK.\n";
     $o_status = 0;
 } else {
         print "ghrsst_notify_operator: system $args[0] < $args[1] executed with: $?\n";
@@ -89,13 +119,22 @@ if ($? == -1) {
 
 #------------------------------------------------------------------------------------------------------------------------
 
-#my $routine_name="ghrsst_notify_operator.pl";
-#my $msg_type = "information";
-#my $msg = "hello there";
-#my $email = "Qui.T.Chau@jpl.nasa.gov";
-#my $sigevent = "SIGEVENT=http://lanina.jpl.nasa.gov:8100&category=UNCATEGORIZED&provider=jpl";
-#my $temp_dir = "/tmp/";
-#my $msg2report = 7;
+# my $routine_name="ghrsst_notify_operator.pl";
+# my $msg_type = "information";
+# my $msg = "hello there";
+# my $email = "Qui.T.Chau@jpl.nasa.gov";
+# my $sigevent = "SIGEVENT=http://lanina.jpl.nasa.gov:8100&category=UNCATEGORIZED&provider=jpl";
+# my $temp_dir = "/tmp/";
+# my $msg2report = 7;
 #
 #ghrsst_notify_operator($routine_name,$msg_type,$msg,$email,$sigevent,$temp_dir,$msg2report);
 
+# my $g_routine_name="ghrsst_notify_operator.pl";
+# my $sigevent_type = "warning";
+# my $sigevent_email_to = "nicole.tebaldi@jpl.nasa.gov";
+# my $temp_dir = "/tmp/";
+# my $sigevent_msg = "Test warning message.";
+# my $sigevent_clause = "SIGEVENT=sigevent_url&category=GENERATE&provider=jpl";
+# my $msg2report = 7;
+# $sigevent_data = "Warning data.";
+# ghrsst_notify_operator($g_routine_name,$sigevent_type,$sigevent_msg,$sigevent_email_to,$sigevent_clause,$temp_dir,$msg2report,$sigevent_data);
