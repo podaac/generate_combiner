@@ -1,4 +1,5 @@
-#!/usr/local/bin/perl
+#!/bin/perl
+#/usr/local/bin/perl
 
 #  Copyright 2012, by the California Institute of Technology.  ALL RIGHTS
 #  RESERVED. United States Government Sponsorship acknowledged. Any commercial
@@ -10,6 +11,8 @@
 # to process based on an index value.
 #
 #------------------------------------------------------------------------------------------------
+
+do "$GHRSST_PERL_LIB_DIRECTORY/log_this.pl";
 
 use File::Basename;
 use JSON;
@@ -26,13 +29,14 @@ sub load_file_list {
     # Determine if running in cloud
     my $index;
     if ($job_index == -235) {
-        $index = $ENV{AWS_BATCH_JOB_ARRAY_INDEX};
+        $index = int($ENV{AWS_BATCH_JOB_ARRAY_INDEX});
     } else {
         $index = $job_index;
     }
 
     # JSON data
     my $json_file = dirname($download_dir) . '/' . $ENV{JSON_FILE};
+    log_this("INFO", "load_file_list", "JSON file: $json_file.\n");
     my $json = do {
         open(my $json_fh, "<:encoding(UTF-8)", $json_file)
             or die("Can't open \"$json_file\": $!\n");
@@ -53,9 +57,9 @@ sub load_file_list {
 
 # ------------------------------------------------------------------------------
 
-# my $download_dir = "/data/combiner/downloads/MODIS_AQUA_L2_SST_OBPG_REFINED";
-# my $processing_type = "REFINED";
-# my $job_index = 0;
+my $download_dir = "/data/dev/tebaldi/aws/combiner/downloads/MODIS_AQUA_L2_SST_OBPG_REFINED";
+my $processing_type = "REFINED";
+my $job_index = 0;
 
-# my ($status,$file_list_ref) = load_file_list($download_dir, $processing_type, $job_index);
-# print "@$file_list_ref\n";
+my ($status,$file_list_ref) = load_file_list($download_dir, $processing_type, $job_index);
+print "@$file_list_ref\n";
