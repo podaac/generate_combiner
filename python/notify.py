@@ -1,5 +1,4 @@
-#!/home/tebaldi/env/combiner/bin/python3
-# /app/env/bin/python3
+#!/app/env/bin/python3
 """Logs and sends email notification when combiner encounters an error.
 
 Logs the error message.
