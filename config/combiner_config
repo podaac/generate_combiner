@@ -32,7 +32,8 @@ setenv SCRATCH_AREA /data/scratch    # NET edit. (Docker container)
 setenv GHRSST_MODIS_L2_USE_PARALLEL_PROCESSING false
 
 # Debug mode
-setenv GHRSST_MODIS_L2_COMBINER_DEBUG_MODE true # NET edit. (Testing, set to false in production)
+# setenv GHRSST_MODIS_L2_COMBINER_DEBUG_MODE true # NET edit. (Testing, set to false in production)
+setenv GHRSST_MODIS_L2_COMBINER_DEBUG_MODE false
 
 # Set GHRSST_MODIS_L2_COMBINER_USE_FILE_LOCK to use the file locking mechanism to prevent race condition
 setenv GHRSST_MODIS_L2_USE_FILE_LOCK true
