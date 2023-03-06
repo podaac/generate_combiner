@@ -92,4 +92,15 @@ endif
 # Call the script to combine the files
 
 perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy -job_index=$job_index | tee $combiner_log_name
-exit
+
+# Check exit code
+
+set exit_code=$status
+echo "EXIT CODE: $exit_code"
+if ( $exit_code == 0 ) then
+    echo "SUCCESSFUL execution: 'startup_level2_combiners.csh' exiting."
+    exit(0)
+else
+    echo "FAILED execution: 'startup_level2_combiners.csh' exiting." 
+    exit(1)
+endif
