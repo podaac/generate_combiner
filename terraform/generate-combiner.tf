@@ -1,22 +1,10 @@
-# ECR
-resource "aws_ecr_repository" "combiner" {
-  name = "${var.prefix}-combiner"
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-  image_tag_mutability = "MUTABLE"
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-}
-
 # Job Definition
 resource "aws_batch_job_definition" "generate_batch_jd_combiner" {
   name                  = "${var.prefix}-combiner"
   type                  = "container"
   container_properties  = <<CONTAINER_PROPERTIES
   {
-    "image": "${aws_ecr_repository.combiner.repository_url}:latest",
+    "image": "${data.aws_ecr_repository.combiner.repository_url}:latest",
     "jobRoleArn": "${data.aws_iam_role.batch_job_role.arn}",
     "logConfiguration": {
         "logDriver" : "awslogs",
