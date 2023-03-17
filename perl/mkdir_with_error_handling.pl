@@ -62,13 +62,25 @@ sub mkdir_with_error_handling {
         log_this("INFO",$g_routine_name,"MKDIR_SUCCESS " . $i_directory_to_create);
     } else {
         $o_mkdir_status = 0;
-        # Notify operator and return.
-        $sigevent_msg = "MKDIR_FAILED " . $i_directory_to_create;
-        log_this("ERROR",$g_routine_name,$sigevent_msg);
-        $sigevent_type = "ERROR";
-        $sigevent_category = "GENERATE";
-        $sigevent_url = $ENV{GHRSST_SIGEVENT_URL};
-        raise_sigevent($sigevent_url,$sigevent_provider,$sigevent_source,$sigevent_type,$sigevent_category,$g_routine_name . ":" . $sigevent_msg,$sigevent_data);
+        # Notify operator, wait 3 seconds and try again
+        $sigevent_msg = "MKDIR_FAILED " . $i_directory_to_create . ". Waiting 3 seconds and trying again.";
+        log_this("WARNING",$g_routine_name,$sigevent_msg);
+
+        sleep(3);
+        $status_mkdir = mkdir($i_directory_to_create);
+        if ($status_mkdir) {
+            # Do nothing, this is good.
+            log_this("INFO",$g_routine_name,"MKDIR_SUCCESS " . $i_directory_to_create);
+        } else {
+            # Notify operator and return.
+            $sigevent_msg = "MKDIR_FAILED " . $i_directory_to_create;
+            log_this("ERROR",$g_routine_name,$sigevent_msg);
+            log_this("ERROR",$g_routine_name,"error number: $!");
+            $sigevent_type = "ERROR";
+            $sigevent_category = "GENERATE";
+            $sigevent_url = $ENV{GHRSST_SIGEVENT_URL};
+            raise_sigevent($sigevent_url,$sigevent_provider,$sigevent_source,$sigevent_type,$sigevent_category,$g_routine_name . ":" . $sigevent_msg,$sigevent_data);
+        }
     }
     return($o_mkdir_status);
 }
