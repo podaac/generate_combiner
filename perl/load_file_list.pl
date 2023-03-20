@@ -24,15 +24,8 @@ sub load_file_list {
     # Inputs
     my $download_dir = shift;
     my $processing_type = shift;
-    my $job_index = shift;
-
-    # Determine if running in cloud
-    my $index;
-    if ($job_index == -235) {
-        $index = int($ENV{AWS_BATCH_JOB_ARRAY_INDEX});
-    } else {
-        $index = $job_index;
-    }
+    my $index = shift;
+    log_this("INFO", "load_file_list", "index: $index.\n");
 
     # JSON data
     my $json_file = dirname($download_dir) . '/' . $ENV{JSON_FILE};
@@ -57,9 +50,9 @@ sub load_file_list {
 
 # ------------------------------------------------------------------------------
 
-my $download_dir = "/data/dev/tebaldi/aws/combiner/downloads/MODIS_AQUA_L2_SST_OBPG_REFINED";
-my $processing_type = "REFINED";
-my $job_index = 0;
+# my $download_dir = "/data/aws";
+# my $processing_type = "REFINED";
+# my $job_index = 0;
 
-my ($status,$file_list_ref) = load_file_list($download_dir, $processing_type, $job_index);
-print "@$file_list_ref\n";
+# my ($status,$file_list_ref) = load_file_list($download_dir, $processing_type, $job_index);
+# print "@$file_list_ref\n";

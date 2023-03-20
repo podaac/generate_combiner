@@ -89,9 +89,19 @@ else
     endif
 endif
 
+# Test and ajust job index for running in AWS
+
+if ($job_index == -235) then
+    set index = $AWS_BATCH_JOB_ARRAY_INDEX;
+else
+    set index = $job_index
+endif
+echo "startup_level2_combiner.csh, index: $index"
+
 # Call the script to combine the files
 
-perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy -job_index=$job_index | tee $combiner_log_name
+echo "perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy -job_index=$index | tee $combiner_log_name"
+perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy -job_index=$index | tee $combiner_log_name
 
 # Check exit code
 
