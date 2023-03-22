@@ -19,7 +19,8 @@
 # Set the environments.
 
 # source $HOME/define_modis_operation_environment_for_combiner
-source /app/config/combiner_config    # NET edit (Docker container)
+# source /app/config/combiner_config    # NET edit (Docker container)
+source /home/tebaldi/generate/workspace/generate_combiner/config/combiner_config
 
 # Get the input.
 
@@ -59,6 +60,10 @@ set today_date = `date '+%m_%d_%y'`
 set random_number = `bash -c 'echo $RANDOM'`
 set combiner_log_name = "$log_top_level_directory/level2_combiner_{$data_type}_{$processing_type}_output_{$today_date}_{$random_number}.log"   # Create unique combiner log
 touch $combiner_log_name
+
+# Set random number as an environment variable
+echo "startup_level2_combiner.csh, RANDOM NUMBER: $random_number"
+setenv RANDOM_NUMER $random_number
 
 # Set the input file name as an environment variable
 setenv JSON_FILE $json_file
