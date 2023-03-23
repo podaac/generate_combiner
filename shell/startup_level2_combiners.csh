@@ -19,8 +19,7 @@
 # Set the environments.
 
 # source $HOME/define_modis_operation_environment_for_combiner
-# source /app/config/combiner_config    # NET edit (Docker container)
-source /home/tebaldi/generate/workspace/generate_combiner/config/combiner_config
+source /app/config/combiner_config    # NET edit (Docker container)
 
 # Get the input.
 
