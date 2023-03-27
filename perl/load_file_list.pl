@@ -24,8 +24,8 @@ sub load_file_list {
     # Inputs
     my $download_dir = shift;
     my $processing_type = shift;
-    my $index = shift;
-    log_this("INFO", "load_file_list", "index: $index.\n");
+    my $index = $ENV{JOB_INDEX};
+    log_this("INFO", "load_file_list", "job index: " . $ENV{JOB_INDEX} . ".\n");
 
     # JSON data
     my $json_file = dirname($download_dir) . '/' . $ENV{JSON_FILE};

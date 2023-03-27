@@ -188,8 +188,7 @@ GetOptions("max_files=i"                     => \$max_num_files_to_process,
            "debug_mode=s"                    => \$debug_mode_flag,
            "skip_additional_day=s"           => \$skip_additional_day_file_flag,
            "perform_move_instead_of_copy=s"  => \$perform_move_instead_of_copy_flag,
-           "test_only=s"                     => \$test_only_flag,
-           "job_index=i"                     => \$job_index);
+           "test_only=s"                     => \$test_only_flag);
 
 # Do a sanity check on required parameters.
 
@@ -321,7 +320,7 @@ if ($ENV{GHRSST_OBPG_USE_2019_NAMING_PATTERN} eq "true") {
 my $time_start_crawling = time();
 log_this("INFO",$g_routine_name,"BEGIN_CRAWLING $granule_search_directory"); 
 
-my ($status,$file_list_ref) = load_file_list($granule_search_directory,$i_processing_type,$job_index);
+my ($status,$file_list_ref) = load_file_list($granule_search_directory,$i_processing_type);
 log_this("INFO",$g_routine_name,"CRAWL_STAGE " . scalar(@$file_list_ref) . " CRAWL_DIRECTORY " . $granule_search_directory); 
 
 my $time_end_crawling = time();

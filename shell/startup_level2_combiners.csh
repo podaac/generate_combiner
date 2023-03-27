@@ -19,7 +19,7 @@
 # Set the environments.
 
 # source $HOME/define_modis_operation_environment_for_combiner
-source /app/config/combiner_config    # NET edit (Docker container)
+source /app/config/combiner_config    # NET edit (Docker container) 
 
 # Get the input.
 
@@ -61,11 +61,25 @@ set combiner_log_name = "$log_top_level_directory/level2_combiner_{$data_type}_{
 touch $combiner_log_name
 
 # Set random number as an environment variable
-echo "startup_level2_combiner.csh, RANDOM NUMBER: $random_number"
 setenv RANDOM_NUMER $random_number
+echo "startup_level2_combiner.csh, RANDOM NUMBER: $random_number"
 
 # Set the input file name as an environment variable
 setenv JSON_FILE $json_file
+echo "startup_level2_combiner.csh, JSON FILE: $json_file"
+
+# Test and ajust job index for running in AWS
+echo "Displaying all environment variable"
+printenv
+echo ""
+if ($job_index == "-235") then
+    echo "startup_level2_combiner.csh, AWS BATCH JOB ARRAY INDEX: $AWS_BATCH_JOB_ARRAY_INDEX"
+    set index = $AWS_BATCH_JOB_ARRAY_INDEX;
+else
+    set index = $job_index
+endif
+setenv JOB_INDEX $index
+echo "startup_level2_combiner.csh, JOB INDEX: $JOB_INDEX"
 
 # Determine which script to call with specific parameters based on data_type
 
@@ -93,19 +107,10 @@ else
     endif
 endif
 
-# Test and ajust job index for running in AWS
-
-if ($job_index == -235) then
-    set index = $AWS_BATCH_JOB_ARRAY_INDEX;
-else
-    set index = $job_index
-endif
-echo "startup_level2_combiner.csh, index: $index"
-
 # Call the script to combine the files
 
-echo "perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy -job_index=$index | tee $combiner_log_name"
-perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy -job_index=$index | tee $combiner_log_name
+echo "perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy | tee $combiner_log_name"
+perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy | tee $combiner_log_name
 
 # Check exit code
 
