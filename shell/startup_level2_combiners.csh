@@ -53,22 +53,29 @@ if (! -e $logging_dir) then    # NET edit.
 endif
 set log_top_level_directory = $logging_dir     # NET edit.
 
+# Create a random number
+
+set job_id_list = ($AWS_BATCH_JOB_ID:as/:/ /)
+if(${#job_id_list} == 2) then
+  setenv RANDOM_NUMBER "$job_id_list[1]-$job_id_list[2]"
+else
+  setenv RANDOM_NUMBER $AWS_BATCH_JOB_ID
+endif
+echo "startup_level2_combiner.csh, RANDOM NUMBER: $RANDOM_NUMBER"
+
 # Create the log file
 
 set today_date = `date '+%m_%d_%y'`
-set random_number = `bash -c 'echo $RANDOM'`
-set combiner_log_name = "$log_top_level_directory/level2_combiner_{$data_type}_{$processing_type}_output_{$today_date}_{$random_number}.log"   # Create unique combiner log
+set combiner_log_name = "$log_top_level_directory/level2_combiner_{$data_type}_{$processing_type}_output_{$today_date}_{$RANDOM_NUMBER}.log"   # Create unique combiner log
 touch $combiner_log_name
 
-# Set random number as an environment variable
-setenv RANDOM_NUMER $AWS_BATCH_JOB_ID
-echo "startup_level2_combiner.csh, RANDOM NUMBER: $random_number"
-
 # Set the input file name as an environment variable
+
 setenv JSON_FILE $json_file
 echo "startup_level2_combiner.csh, JSON FILE: $json_file"
 
 # Test and ajust job index for running in AWS
+
 echo "Displaying all environment variable"
 printenv
 echo ""
