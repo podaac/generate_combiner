@@ -903,7 +903,9 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
                 $i_sst_filename,
                 $i_sst4_filename,
                 $i_oc_filename,
-                $scratch_area);
+                $scratch_area,
+                $i_processing_type,
+                $original_sst_filename);
 
         # If running this as a child sub process we need to exit to signify that we are done with the combiner job.
         if ($child_pid == 0) {

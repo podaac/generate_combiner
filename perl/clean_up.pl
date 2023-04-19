@@ -13,6 +13,7 @@ do "$GHRSST_PERL_LIB_DIRECTORY/log_this.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/mkdir_with_error_handling.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/file_move_with_error_handling.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/move_to_holding_tank_with_error_handling.pl";
+do "$GHRSST_PERL_LIB_DIRECTORY/raise_sigevent.pl";
 
 #------------------------------------------------------------------------------------------------------------------------
 sub clean_up {
@@ -24,10 +25,26 @@ sub clean_up {
     my $i_sst4_filename = shift;
     my $i_oc_filename   = shift;
     my $i_scratch_area  = shift;
+    my $i_processing_type = shift;
+    my $i_original_sst_filename = shift;
+
+    my $g_routine_name = "clean_up";
 
     if (($i_file_created_successfully_flag == 1) && (-e $i_sst_filename)) {
-        log_this("INFO",$g_routine_name,"REMOVING_FILE " .  $i_sst_filename);
-        unlink ($i_sst_filename);
+        if ($i_processing_type eq "AQUA_REFINED" || ($i_processing_type eq "TERRA_REFINED") || ($i_processing_type eq "VIIRS_REFINED")) {
+            log_this("INFO",$g_routine_name,"REMOVING_FILE " .  $i_sst_filename);
+            unlink ($i_sst_filename);
+        } else {
+            log_this("INFO",$g_routine_name,"KEEPING_QUICKLOOK_FILE_INPUT " .  $i_sst_filename);
+            rename($i_sst_filename,$i_original_sst_filename);
+            if (-e $i_original_sst_filename) {
+              log_this("INFO",$g_routine_name,"MOVING_QUICKLOOK_FILE_TO_INPUT " . $i_sst_filename . " " .  $i_original_sst_filename);
+            } else {
+                $sigevent_msg = "QUICKLOOK_FILE_MOVE_TO_INPUT_FAILED_CANNOT_PERFORM_RENAME $i_sst_filename $i_original_sst_filename";
+                log_this("ERROR",$g_routine_name,$sigevent_msg);
+            }
+        }
+        
     } else {
         # Since we were not successful in combine the input file, we need to move it to a quarantine directory for operator to inspect.
 

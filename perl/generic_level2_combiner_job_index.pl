@@ -541,6 +541,7 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
 
     my $o_status = 0;
     my $time_start_uncompress = time();
+    my $original_sst_filename = $working_on_this_file;
 
     ($o_status,$num_files_read,$total_Bytes_in_files,$i_sst_filename,$i_sst4_filename,$i_oc_filename) = stage_input_files_for_combiner_historical($index_to_sst_sst4_list,
                                                                                                                                        \@sst_sst4_filelist,
@@ -873,7 +874,9 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
               $i_sst_filename,
               $i_sst4_filename,
               $i_oc_filename,
-              $scratch_area);
+              $scratch_area,
+              $i_processing_type,
+              $original_sst_filename);
 
     # If running this as a child sub process we need to exit to signify that we are done with the combiner job.
     if ($child_pid == 0) {
