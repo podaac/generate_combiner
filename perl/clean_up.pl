@@ -36,9 +36,9 @@ sub clean_up {
             unlink ($i_sst_filename);
         } else {
             log_this("INFO",$g_routine_name,"KEEPING_QUICKLOOK_FILE_INPUT " .  $i_sst_filename);
-            rename($i_sst_filename,$i_original_sst_filename);
+            system("mv", "$i_sst_filename", "$i_original_sst_filename");
             if (-e $i_original_sst_filename) {
-              log_this("INFO",$g_routine_name,"MOVING_QUICKLOOK_FILE_TO_INPUT " . $i_sst_filename . " " .  $i_original_sst_filename);
+              log_this("INFO",$g_routine_name,"MOVED_QUICKLOOK_FILE_TO_INPUT " . $i_sst_filename . " " .  $i_original_sst_filename);
             } else {
                 $sigevent_msg = "QUICKLOOK_FILE_MOVE_TO_INPUT_FAILED_CANNOT_PERFORM_RENAME $i_sst_filename $i_original_sst_filename";
                 log_this("ERROR",$g_routine_name,$sigevent_msg);
