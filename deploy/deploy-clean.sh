@@ -5,8 +5,10 @@
 # Example usage: ./deploy-clean.sh "s3://bucket"
 
 ROOT_PATH="$PWD"
+ROOT_LIST=$(ls -l $ROOT_PATH)
+echo $ROOT_LIST
 
-rm -rf $ROOT_PATH/idl/install/idl882-linux.tar.gz
-rm -rf $ROOT_PATH/idl/install/lic_server.dat
+# rm -rf $ROOT_PATH/idl/install/idl882-linux.tar.gz
+# rm -rf $ROOT_PATH/idl/install/lic_server.dat
 
-echo "Removed IDL installer and license files.
+# echo "Removed IDL installer and license files.
