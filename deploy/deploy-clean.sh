@@ -11,4 +11,6 @@ echo $ROOT_LIST
 rm -rf ${ROOT_PATH}/idl/install/idl882-linux.tar.gz
 rm -rf ${ROOT_PATH}/idl/install/lic_server.dat
 
-echo "Removed IDL installer and license files.
+echo "Removed IDL installer and license files."
+ROOT_LIST=$(ls $ROOT_PATH/idl/install/)
+echo $ROOT_LIST
