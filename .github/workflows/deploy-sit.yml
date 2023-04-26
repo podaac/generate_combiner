@@ -39,15 +39,15 @@ jobs:
       - name: IDL Installation Prep
         run: deploy/deploy-idl.sh s3://${PREFIX_ENV}-idl-client
 
-      # # Login and define registry, repository, and tag names
-      # - name: Login to AWS ECR
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v1
-      # - name: Define ECR registry, repository, and image tag names
-      #   run : |
-      #     echo "REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
-      #     echo "REPOSITORY=${PREFIX_ENV}-${APP_NAME_ENV}" >> $GITHUB_ENV
-      #     echo "IMAGE_TAG=latest" >> $GITHUB_ENV
+      # Login and define registry, repository, and tag names
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Define ECR registry, repository, and image tag names
+        run : |
+          echo "REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
+          echo "REPOSITORY=${PREFIX_ENV}-${APP_NAME_ENV}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=latest" >> $GITHUB_ENV
 
       # # Create ECR repository (if it does not exist)
       # - name: Create AWS ECR Repository
