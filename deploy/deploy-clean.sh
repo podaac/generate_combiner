@@ -5,7 +5,7 @@
 # Example usage: ./deploy-clean.sh "s3://bucket"
 
 ROOT_PATH="$PWD"
-ROOT_LIST=$(ls -l $ROOT_PATH)
+ROOT_LIST=$(ls $ROOT_PATH/idl/install/)
 echo $ROOT_LIST
 
 # rm -rf $ROOT_PATH/idl/install/idl882-linux.tar.gz
