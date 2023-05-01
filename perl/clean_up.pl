@@ -31,18 +31,14 @@ sub clean_up {
     my $g_routine_name = "clean_up";
 
     if (($i_file_created_successfully_flag == 1) && (-e $i_sst_filename)) {
-        if ($i_processing_type eq "AQUA_REFINED" || ($i_processing_type eq "TERRA_REFINED") || ($i_processing_type eq "VIIRS_REFINED")) {
-            log_this("INFO",$g_routine_name,"REMOVING_FILE " .  $i_sst_filename);
-            unlink ($i_sst_filename);
+        # Keep the SST file in the input directory so if can be used for further processing
+        log_this("INFO",$g_routine_name,"KEEPING_SST_FILE_INPUT " .  $i_sst_filename);
+        system("mv", "$i_sst_filename", "$i_original_sst_filename");
+        if (-e $i_original_sst_filename) {
+            log_this("INFO",$g_routine_name,"MOVED_SST_FILE_TO_INPUT " . $i_sst_filename . " " .  $i_original_sst_filename);
         } else {
-            log_this("INFO",$g_routine_name,"KEEPING_QUICKLOOK_FILE_INPUT " .  $i_sst_filename);
-            system("mv", "$i_sst_filename", "$i_original_sst_filename");
-            if (-e $i_original_sst_filename) {
-              log_this("INFO",$g_routine_name,"MOVED_QUICKLOOK_FILE_TO_INPUT " . $i_sst_filename . " " .  $i_original_sst_filename);
-            } else {
-                $sigevent_msg = "QUICKLOOK_FILE_MOVE_TO_INPUT_FAILED_CANNOT_PERFORM_RENAME $i_sst_filename $i_original_sst_filename";
-                log_this("ERROR",$g_routine_name,$sigevent_msg);
-            }
+            $sigevent_msg = "SST_FILE_MOVE_TO_INPUT_FAILED_CANNOT_PERFORM_RENAME $i_sst_filename $i_original_sst_filename";
+            log_this("ERROR",$g_routine_name,$sigevent_msg);
         }
         
     } else {
