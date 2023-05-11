@@ -422,6 +422,7 @@ my $time_spent_in_uncompressing = 0;
 my $time_spent_in_combining     = 0; 
 my $total_Bytes_in_files        = 0; 
 my $total_Bytes_created_files   = 0; 
+my $num_sst_files_to_wait       = 0;
 
 my $output_directory = $scratch_area;  # Will append the processing type to where to write the output file to.
 
@@ -552,6 +553,7 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
             log_this("INFO",$g_routine_name,$sigevent_msg);
             # Store unprocessed SST file name in threshold text file so that the Generate workflow can be kicked off for this file again.
             write_threshold_txt($original_sst_filename, lc($i_processing_type));
+            $num_sst_files_to_wait = $num_sst_files_to_wait + 1;
             next;
         }
     }
@@ -1057,6 +1059,7 @@ log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_crawling         $ti
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_uncompress_move  $time_spent_in_uncompressing");
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_combining        $time_spent_in_combining");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_files_read             $num_files_read");
+log_this("INFO",$g_routine_name,"FILES_STAT Number_of_sst_wait               $num_sst_files_to_wait");
 log_this("INFO",$g_routine_name,"FILES_STAT Batch_size                       $NUM_FILES_TO_PROCESS");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_combined_files_created $num_combined_files_created");
 log_this("INFO",$g_routine_name,"FILES_STAT total_Bytes_in_files             $total_Bytes_in_files");
