@@ -133,6 +133,7 @@ do "$GHRSST_PERL_LIB_DIRECTORY/register_job.pl";
 use File::Basename;
 use File::Copy;
 use Getopt::Long;
+use Time::Piece;
 
 # Define user-defined package.
 # This package generic_combiner_job_manager has some useful functions to retrieve tokens for night file name, name extension to expect for input file and which combiner
@@ -403,6 +404,7 @@ my $time_spent_in_uncompressing = 0;
 my $time_spent_in_combining     = 0; 
 my $total_Bytes_in_files        = 0; 
 my $total_Bytes_created_files   = 0; 
+my $num_sst_files_to_wait       = 0;
 
 my $output_directory = $scratch_area;  # Will append the processing type to where to write the output file to.
 
@@ -507,6 +509,26 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
      $index_to_sst_sst4_list = $index_to_sst_sst4_list + 1;  # Index this so we can skip to next name.
      next;
   } 
+  
+  # Important note: We have to check for the file age before staging, otherwise the file will get staged but not processed.
+  # Check for the age of the file before proceeding.
+  $o_proceed_flag = 0;
+  my $i_sst4_filename = get_matching_night_filename_historical($i_data_source,$working_on_this_file);
+  ($o_proceed_flag,$o_file_age,$o_night_or_day) = proceed_with_processing_sst_file($working_on_this_file,$i_sst4_filename,$i_threshold_to_wait);
+  if ($o_proceed_flag == 0) {
+    $index_to_sst_sst4_list = $index_to_sst_sst4_list + 1;  # Index this so we can skip to next name.
+    $sigevent_msg = "SST_PROCEED_FLAG_FALSE: file has not passed threshold time: working_on_this_file [$working_on_this_file] o_file_age [$o_file_age] i_threshold_to_wait [$i_threshold_to_wait] o_night_or_day [$o_night_or_day]";
+    log_this("INFO",$g_routine_name,$sigevent_msg);
+    # Store unprocessed SST file name in threshold text file so that the Generate workflow can be kicked off for this file again.
+    write_threshold_txt($working_on_this_file, lc($i_processing_type));
+    $num_sst_files_to_wait = $num_sst_files_to_wait + 1;
+    next;
+  }
+
+  if ($o_proceed_flag == 1) {
+    $sigevent_msg = "SST_PROCEED_FLAG_TRUE: file has indeed passed threshold time (or files available): working_on_this_file [$working_on_this_file] o_file_age [$o_file_age] i_threshold_to_wait [$i_threshold_to_wait] o_night_or_day [$o_night_or_day]";
+    log_this("INFO",$g_routine_name,$sigevent_msg);
+  }
 
   # If we got to here, the output file does not already exist, we can proceed with the combine job.
   # To do parallel processing, we add the fork() call to allow the code below to run in a separate process.
@@ -1023,6 +1045,7 @@ log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_crawling         $ti
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_uncompress_move  $time_spent_in_uncompressing");
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_combining        $time_spent_in_combining");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_files_read             $num_files_read");
+log_this("INFO",$g_routine_name,"FILES_STAT Number_of_sst_wait               $num_sst_files_to_wait");
 log_this("INFO",$g_routine_name,"FILES_STAT Batch_size                       $NUM_FILES_TO_PROCESS");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_combined_files_created $num_combined_files_created");
 log_this("INFO",$g_routine_name,"FILES_STAT total_Bytes_in_files             $total_Bytes_in_files");
@@ -2003,6 +2026,95 @@ sub strip_trailing_slash {
         $o_stripped_name = substr($i_name,0,$name_length-1); # Copy up to the '/' character.
     }
    return ($o_stripped_name);
+}
+
+#------------------------------------------------------------------------------------------------------------------------
+sub proceed_with_processing_sst_file {
+    my $i_sst_filename      = shift;
+    my $i_sst4_filename     = shift;
+    my $i_threshold_to_wait = shift;
+
+    my $g_routine_name = 'generic_level2_combiner:proceed_with_processing_sst_file:'; 
+
+    #my $o_time_passed_expiration = 0;
+    my $o_proceed_flag = 1;
+    my $o_file_age               = 0;
+    my $o_night_or_day = '';
+
+    my $time_now = time();
+    my $seconds_difference_between_sst_and_now = 0;
+    my $minutes_difference_between_sst_and_now = 0;
+    my $hours_difference_between_sst_and_now   = 0;
+    my $last_modified_time_of_sst              = 0;
+
+    # Do a sanity check if the file exist.
+    if (-e $i_sst_filename) {
+        log_this("INFO",$g_routine_name,"FILE_EXISTENCE_CHECK_ORIGINAL_SST_FILENAME $i_sst_filename");
+        $last_modified_time_of_sst = (stat($i_sst_filename))[9];  # Get last modified time in seconds since 1970
+    } else {
+        log_this("ERROR",$g_routine_name,"File not found $i_sst_filename");
+        exit(1);
+    }
+
+    $seconds_difference_between_sst_and_now = $time_now - $last_modified_time_of_sst;
+    $minutes_difference_between_sst_and_now = sprintf("%.0f",$seconds_difference_between_sst_and_now/60);
+    $o_file_age = $minutes_difference_between_sst_and_now;
+    $hours_difference_between_sst_and_now   = sprintf("%.0f",$seconds_difference_between_sst_and_now/3600);
+
+    do "$GHRSST_PERL_LIB_DIRECTORY/is_granule_night_or_day.pl";
+    my ($day_or_night_status,$when_granule_observed_flag) = is_granule_night_or_day($i_sst_filename);
+
+    if ($when_granule_observed_flag eq 'Day') {
+            $o_night_or_day = 'D';
+    }
+    if ($when_granule_observed_flag eq 'Night') {
+        $o_night_or_day = 'N';
+    }
+    if ($when_granule_observed_flag eq 'Mixed') {
+        $o_night_or_day = 'M';
+    }
+
+    # If night or mixed, we check for name of i_sst4_filename to see if it is a dummy.
+    if ($o_night_or_day eq 'N' or $o_night_or_day eq 'M') {
+        # If we don't already have a legitimate SST4 file name and the time difference is smaller than threshold, we don't proceed with processing this SST.
+        if (index($i_sst4_filename,'DUMMY') >= 0) {
+            if ($minutes_difference_between_sst_and_now < $i_threshold_to_wait) {
+                $o_proceed_flag = 0;
+            }
+        }
+    }
+
+    log_this("INFO",$g_routine_name,"i_sst_filename,i_sst4_filename,night_or_day,file_age,threshold_to_wait,_proceed_flag [$i_sst_filename] [$i_sst4_filename] [$o_night_or_day] [$o_file_age] [$i_threshold_to_wait] [$o_proceed_flag]");
+    return ($o_proceed_flag,$o_file_age,$o_night_or_day);
+}
+
+#------------------------------------------------------------------------------------------------------------------------
+
+sub write_threshold_txt {
+    # Function to write SST files that did not have matching OC or SST4 files to text file.
+    my $i_sst_file = shift;    # Name of SST file
+    my $i_processing_type = shift;
+    
+    my $sst_filename = basename($i_sst_file);
+
+    my $timestamp = localtime->strftime('%Y%m%dT%H0000');
+    my $threshold_txt = $ENV{COMBINER_JOB_DIR} . "/" . $i_processing_type . "_" . $timestamp . "_" . $ENV{RANDOM_NUMBER} . ".txt";
+    
+    # Test if threshold file exists and append to file contents if it does.
+    my $fh = *FILEHANDLE;
+    if (-e $threshold_txt) {
+        open($fh, '>>', $threshold_txt) or die "Could not open threshold file $threshold_txt: $!.\n";
+        log_this("INFO", "write_threshold_txt", "Opening file to append: $threshold_txt.");
+    } else {
+        # Create a new file for writing.
+        open($fh, '>', $threshold_txt) or die "Could not open threshold file $threshold_txt: $!.\n";
+        log_this("INFO", "write_threshold_txt", "Creating file to write: $threshold_txt.");
+    }
+
+    # Write SST file name to file and close
+    say $fh $sst_filename;
+    log_this("INFO", "write_threshold_txt", "Wrote $sst_filename to $threshold_txt.");
+    close $fh;
 }
 
 #------------------------------------------------------------------------------------------------------------------------
