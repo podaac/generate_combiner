@@ -132,6 +132,7 @@ do "$GHRSST_PERL_LIB_DIRECTORY/is_granule_night_or_day.pl";
 use Getopt::Long;
 use File::Basename;
 use File::Copy;
+use Time::Piece;
 
 my $debug_flag = 0;
 
@@ -421,6 +422,7 @@ my $time_spent_in_uncompressing = 0;
 my $time_spent_in_combining     = 0; 
 my $total_Bytes_in_files        = 0; 
 my $total_Bytes_created_files   = 0; 
+my $num_sst_files_to_wait       = 0;
 
 my $output_directory = $scratch_area;  # Will append the processing type to where to write the output file to.
 
@@ -549,6 +551,9 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
             $num_files_checked      = $num_files_checked + 1;
             $sigevent_msg = "SST_PROCEED_FLAG_FALSE: file has not passed threshold time: original_sst_filename [$original_sst_filename] o_file_age [$o_file_age] i_threshold_to_wait [$i_threshold_to_wait] o_night_or_day [$o_night_or_day]";
             log_this("INFO",$g_routine_name,$sigevent_msg);
+            # Store unprocessed SST file name in threshold text file so that the Generate workflow can be kicked off for this file again.
+            write_threshold_txt($original_sst_filename, lc($i_processing_type));
+            $num_sst_files_to_wait = $num_sst_files_to_wait + 1;
             next;
         }
     }
@@ -1054,6 +1059,7 @@ log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_crawling         $ti
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_uncompress_move  $time_spent_in_uncompressing");
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_combining        $time_spent_in_combining");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_files_read             $num_files_read");
+log_this("INFO",$g_routine_name,"FILES_STAT Number_of_sst_wait               $num_sst_files_to_wait");
 log_this("INFO",$g_routine_name,"FILES_STAT Batch_size                       $NUM_FILES_TO_PROCESS");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_combined_files_created $num_combined_files_created");
 log_this("INFO",$g_routine_name,"FILES_STAT total_Bytes_in_files             $total_Bytes_in_files");
@@ -2360,6 +2366,35 @@ sub proceed_with_processing_sst_file {
     log_this("DEBUG",$g_routine_name,"i_sst_filename,i_staged_sst_filename,i_sst4_filename,i_oc_filename [$i_sst_filename] [$i_staged_sst_filename] [$i_sst4_filename] [$i_oc_filename] [$o_night_or_day] [$o_file_age] [$i_threshold_to_wait] [$o_proceed_flag]");
     #exit(0);
     return ($o_proceed_flag,$o_file_age,$o_night_or_day);
+}
+
+#------------------------------------------------------------------------------------------------------------------------
+
+sub write_threshold_txt {
+    # Function to write SST files that did not have matching OC or SST4 files to text file.
+    my $i_sst_file = shift;    # Name of SST file
+    my $i_processing_type = shift;
+    
+    my $sst_filename = basename($i_sst_file);
+
+    my $timestamp = localtime->strftime('%Y%m%dT%H0000');
+    my $threshold_txt = $ENV{COMBINER_JOB_DIR} . "/" . $i_processing_type . "_" . $timestamp . "_" . $ENV{RANDOM_NUMBER} . ".txt";
+    
+    # Test if threshold file exists and append to file contents if it does.
+    my $fh = *FILEHANDLE;
+    if (-e $threshold_txt) {
+        open($fh, '>>', $threshold_txt) or die "Could not open threshold file $threshold_txt: $!.\n";
+        log_this("INFO", "write_threshold_txt", "Opening file to append: $threshold_txt.");
+    } else {
+        # Create a new file for writing.
+        open($fh, '>', $threshold_txt) or die "Could not open threshold file $threshold_txt: $!.\n";
+        log_this("INFO", "write_threshold_txt", "Creating file to write: $threshold_txt.");
+    }
+
+    # Write SST file name to file and close
+    say $fh $sst_filename;
+    log_this("INFO", "write_threshold_txt", "Wrote $sst_filename to $threshold_txt.");
+    close $fh;
 }
 
 #------------------------------------------------------------------------------------------------------------------------
