@@ -1924,6 +1924,9 @@ if (i_sst4_filename NE 'DUMMY_SST4_FILENAME') then begin
         endif
         l_status = combine_additional_night_hdf_variables_to_netcdf(i_sst4_filename,i_out_filename);
     endelse
+    if (l_status EQ FAILURE) then begin
+        exit, status=39
+    endif
 endif
 
 if (i_oc_filename NE 'DUMMY_OC_FILENAME') then begin

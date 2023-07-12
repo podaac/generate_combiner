@@ -62,12 +62,10 @@ if (r_status EQ FAILURE) then begin
 
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
-    donotcare = wrapper_ghrsst_notify_operator($
-                        routine_name,$
-                        msg_type,$
-                        msg,$
-                        i_data);
-    ; Keep going
+    donotcare = clean_up_combiner(routine_name,i_out_filename);
+    ; Must return immediately.
+    return, r_status
+
 endif else begin
     r_dataset_array = *(o_data_variable_structure.s_variable_array);
     PTR_FREE,o_data_variable_structure.s_variable_array;
@@ -162,12 +160,10 @@ if (r_status EQ FAILURE) then begin
 
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
-    donotcare = wrapper_ghrsst_notify_operator($
-                        routine_name,$
-                        msg_type,$
-                        msg,$
-                        i_data);
-    ; Keep going
+    donotcare = clean_up_combiner(routine_name,i_out_filename);
+    ; Must return immediately.
+    return, r_status
+
 endif else begin
     r_dataset_array = *(o_data_variable_structure.s_variable_array);
     PTR_FREE,o_data_variable_structure.s_variable_array;
@@ -257,14 +253,13 @@ if (GETENV('GHRSST_MODIS_COMBINER_FAILED_STDV_SST3_VARIABLE_READ_TEST') EQ 'true
 if (r_status EQ FAILURE) then begin
     msg_type = "warning";
     msg = 'Cannot read variable ' + i_variable_short_name + ' from file ' + i_filename;
+    
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
-    donotcare = wrapper_ghrsst_notify_operator($
-                        routine_name,$
-                        msg_type,$
-                        msg,$
-                        i_data);
-    ; Keep going
+    donotcare = clean_up_combiner(routine_name,i_out_filename);
+    ; Must return immediately.
+    return, r_status
+
 endif else begin
     r_dataset_array = *(o_data_variable_structure.s_variable_array);
     PTR_FREE,o_data_variable_structure.s_variable_array;
@@ -357,13 +352,10 @@ if (r_status EQ FAILURE) then begin
 
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
-    donotcare = wrapper_ghrsst_notify_operator($
-                    routine_name,$
-                    msg_type,$
-                    msg,$
-                    i_data);
+    donotcare = clean_up_combiner(routine_name,i_out_filename);
+    ; Must return immediately.
+    return, r_status
 
-    ; Keep going
 endif else begin
     r_dataset_array = *(o_data_variable_structure.s_variable_array);
     PTR_FREE,o_data_variable_structure.s_variable_array;

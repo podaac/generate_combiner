@@ -1930,6 +1930,9 @@ if (i_sst3_filename NE 'DUMMY_SST3_FILENAME') then begin
 ;stop;
         l_status = combine_additional_sst3_hdf_variables_to_netcdf(i_sst3_filename,i_out_filename);
     endelse
+    if (l_status EQ FAILURE) then begin
+        exit, status=39
+    endif
 endif
 
 if (i_oc_filename NE 'DUMMY_OC_FILENAME') then begin
