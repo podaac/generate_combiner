@@ -165,9 +165,12 @@ def publish_event(sigevent_type, sigevent_description, sigevent_data, logger):
     subject = f"Generate Batch Job Failure: Combiner"
     message = f"Generate AWS Batch combiner job has encountered an error.\n" \
         + f"Job Identifier: {os.getenv('AWS_BATCH_JOB_ID')}.\n" \
-        + f"Job Queue: {os.getenv('AWS_BATCH_JQ_NAME')}.\n" \
+        + f"Job Queue: {os.getenv('AWS_BATCH_JQ_NAME')}.\n\n" \
         + f"Error type: {sigevent_type}.\n" \
-        + f"Error description: {sigevent_description}\n"
+        + f"Error description: {sigevent_description}\n\n" \
+        + "Please note that the SST files associated with the error may have been quarantined and the error checker will attempt to resubmit them to the Generate workflow.\n\n" \
+        + "Please follow these steps to diagnose the error: https://wiki.jpl.nasa.gov/pages/viewpage.action?pageId=771470900#GenerateCloudOperationsErrorDetection&Recovery-Combiner&ProcessorErrors\n\n\n"
+        
     if sigevent_data != "": message += f"Error data: {sigevent_data}"
     try:
         response = sns.publish(
