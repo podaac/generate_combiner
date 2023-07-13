@@ -96,7 +96,7 @@ if (file_exist EQ 0) then begin
     msg = "File not found: " + i_sst_filename;
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
-    return;
+    exit, status=49   ; Indicate an error that should prompt notification;
 endif
 
 ; List of LONG global attributes to read from NetCDF file.
@@ -161,7 +161,7 @@ for i = 0, 1 do begin
         donotcare = echo_message_to_screen(routine_name,msg,msg_type);
         donotcare = error_log_writer(routine_name,msg);
         ; Must return immediately.
-        return
+        exit, status=49   ; Indicate an error that should prompt notification
     endif
 
     ; Save it in the array.
@@ -193,7 +193,7 @@ for i = 0, 1 do begin
         donotcare = error_log_writer(routine_name,msg);
 
         ; No need to keep going.  Exiting now.
-        return;
+        exit, status=49   ; Indicate an error that should prompt notification;
     endif
 
     if (debug_mode) then begin
@@ -219,7 +219,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 r_dataset_array = *(o_data_variable_structure.s_variable_array);
@@ -257,7 +257,7 @@ if (start_year LT 1900) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 i_variable_short_name = 'day';
@@ -275,7 +275,7 @@ if (r_status NE SUCCESS) then begin
 
     status = FAILURE;
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 r_dataset_array = *(o_data_variable_structure.s_variable_array);
@@ -306,7 +306,7 @@ if ((start_day LT 1) OR (start_day GT 366)) then begin
 
     status = FAILURE;
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; Save the year and day into the long array so they can be written to output file.
@@ -361,7 +361,7 @@ for i = 0, (size(float_attributes_values,/N_ELEMENTS) - 1) do begin
         donotcare = echo_message_to_screen(routine_name,msg,msg_type);
         donotcare = error_log_writer(routine_name,msg);
         ; Must return immediately.
-        return
+        exit, status=49   ; Indicate an error that should prompt notification
     endif
 
     ; Do a sanity check on the value of northernmost_latitude that it is within the globe: GT 90.0 OR LT -90.0
@@ -373,7 +373,7 @@ for i = 0, (size(float_attributes_values,/N_ELEMENTS) - 1) do begin
             donotcare = echo_message_to_screen(routine_name,msg,msg_type);
             donotcare = error_log_writer(routine_name,msg);
             ; Must return immediately.
-            return
+            exit, status=49   ; Indicate an error that should prompt notification
         endif
     endif
 
@@ -386,7 +386,7 @@ for i = 0, (size(float_attributes_values,/N_ELEMENTS) - 1) do begin
             donotcare = echo_message_to_screen(routine_name,msg,msg_type);
             donotcare = error_log_writer(routine_name,msg);
             ; Must return immediately.
-            return
+            exit, status=49   ; Indicate an error that should prompt notification
         endif
     endif 
 
@@ -399,7 +399,7 @@ for i = 0, (size(float_attributes_values,/N_ELEMENTS) - 1) do begin
             donotcare = echo_message_to_screen(routine_name,msg,msg_type);
             donotcare = error_log_writer(routine_name,msg);
             ; Must return immediately.
-            return
+            exit, status=49   ; Indicate an error that should prompt notification
         endif
     endif 
 
@@ -412,7 +412,7 @@ for i = 0, (size(float_attributes_values,/N_ELEMENTS) - 1) do begin
             donotcare = echo_message_to_screen(routine_name,msg,msg_type);
             donotcare = error_log_writer(routine_name,msg);
             ; Must return immediately.
-            return
+            exit, status=49   ; Indicate an error that should prompt notification
         endif
     endif 
 
@@ -433,7 +433,7 @@ if (float_attributes_values[Southernmost_Latitude_index] GT float_attributes_val
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; Do a sanity check on the values of westernmost_longitude and easternmost_longitude together: westernmost_longitude GT easternmost_longitude
@@ -446,7 +446,7 @@ endif
 ;    donotcare = error_log_writer(routine_name,msg);
 ;    status = FAILURE;
 ;    ; Must return immediately.
-;    return
+;    exit, status=49   ; Indicate an error that should prompt notification
 ;endif
 
 ;
@@ -473,7 +473,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ;
@@ -491,7 +491,7 @@ if (o_time_field_valid_flag NE SUCCESS) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately. 
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 debug_mode = 1;
@@ -536,7 +536,7 @@ if (start_millisec LT 0) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; Save the start_millisec to long array so they can be written to output file.
@@ -588,7 +588,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ;
@@ -606,7 +606,7 @@ if (o_time_field_valid_flag NE SUCCESS) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately. 
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 string_attributes_names[string_index] = 'time_coverage_end'; 
@@ -641,7 +641,7 @@ if (end_millisec LT 0) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; Save the end_millisec long array so they can be written to output file.
@@ -663,7 +663,7 @@ if (end_day_in_month LT 1) OR (end_day_in_month GT 31) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; If the day in the month is different between start and end coverage means that we have skipped to the next day.
@@ -690,7 +690,7 @@ if (end_year LT 1900) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; Now we can save the "End Year" and "End Day" value.
@@ -741,7 +741,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; Do a sanity check on the 'instrument' attribute.  For now, we look to see if it contain modis (case not important).
@@ -752,7 +752,7 @@ if (STRMATCH(r_sensor_name,'*VIIRS*',/FOLD_CASE) NE 1) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 string_attributes_names[string_index] = 'instrument'; 
@@ -774,7 +774,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; Do a sanity check on the attribute.
@@ -785,7 +785,7 @@ if ((r_start_node NE 'Ascending') AND (r_start_node NE 'Descending')) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 string_attributes_names[string_index] = 'startDirection'; 
@@ -808,7 +808,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; Do a sanity check on the attribute.
@@ -821,7 +821,7 @@ if ((r_end_node NE 'Ascending') AND (r_end_node NE 'Descending')) then begin
 
     status = FAILURE;
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 string_attributes_names[string_index] = 'endDirection'; 
@@ -843,7 +843,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; Remove the non-ascii character from variable.
@@ -858,7 +858,7 @@ if ((r_day_or_night NE 'Day') AND $
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     ; Must return immediately.
-    return
+    exit, status=49   ; Indicate an error that should prompt notification
 endif
 
 ; Special processing:
@@ -1025,7 +1025,7 @@ if (l_title EQ '') then begin
     msg = "Cannot determine title based on instrument attribute [" + r_sensor_name + "] from file " + i_sst_filename;
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
-    return;
+    exit, status=49   ; Indicate an error that should prompt notification;
 endif
 
 l_dsd_entry_id = 'JPL-L2P-' + l_sensor_name;
@@ -1098,7 +1098,7 @@ if (EXECUTE_THIS_BLOCK EQ 1) then begin
         donotcare = error_log_writer(routine_name,msg);
         donotcare = clean_up_combiner(routine_name,i_out_filename);
         ; Must return immediately.
-        return
+        exit, status=39    ; Indicate an error that should be quarantined
     endif
 endif
 ; END_BLOCK_0
@@ -1122,7 +1122,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 r_status = find_netcdf_variable_attribute_info('scale_factor',o_data_variable_structure.s_attributes_array,r_slope);
@@ -1156,7 +1156,7 @@ o_variable_valid_flag = validate_variable_dimensions($
 if (o_variable_valid_flag NE 1) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 if (debug_mode) then begin
@@ -1184,7 +1184,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 i_variable_short_name = 'cntl_pt_rows';
@@ -1202,7 +1202,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 r_status = find_netcdf_variable_attribute_info('scale_factor',o_data_variable_structure.s_attributes_array,r_slope);
@@ -1232,7 +1232,7 @@ o_variable_valid_flag = validate_variable_dimensions($
 if (o_variable_valid_flag NE 1) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 if (debug_mode) then begin
@@ -1260,7 +1260,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 i_variable_short_name = 'l2_flags';
@@ -1278,7 +1278,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 r_status = find_netcdf_variable_attribute_info('scale_factor',o_data_variable_structure.s_attributes_array,r_slope);
@@ -1308,7 +1308,7 @@ o_variable_valid_flag = validate_variable_dimensions($
 if (o_variable_valid_flag NE 1) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 if (debug_mode) then begin
@@ -1332,7 +1332,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 i_variable_short_name = 'longitude';
@@ -1350,7 +1350,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
 
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 r_status = find_netcdf_variable_attribute_info('scale_factor',o_data_variable_structure.s_attributes_array,r_slope);
@@ -1378,7 +1378,7 @@ o_variable_valid_flag = validate_variable_dimensions($
 if (o_variable_valid_flag NE 1) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 if (debug_mode) then begin
@@ -1406,7 +1406,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 ;
@@ -1428,7 +1428,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 r_status = find_netcdf_variable_attribute_info('scale_factor',o_data_variable_structure.s_attributes_array,r_slope);
@@ -1456,7 +1456,7 @@ o_variable_valid_flag = validate_variable_dimensions($
 if (o_variable_valid_flag NE 1) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 if (debug_mode) then begin
@@ -1482,7 +1482,7 @@ if (r_status EQ FAILURE) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 ; BEGIN_BLOCK_2
@@ -1505,7 +1505,7 @@ if (r_status EQ FAILURE) then begin
     donotcare = error_log_writer(routine_name,'Cannot read variable ' + i_variable_short_name + ' from file ' + i_sst_filename);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 r_status = find_netcdf_variable_attribute_info('scale_factor',o_data_variable_structure.s_attributes_array,r_slope);
@@ -1533,7 +1533,7 @@ o_variable_valid_flag = validate_variable_dimensions($
 if (o_variable_valid_flag NE 1) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 ;
@@ -1577,7 +1577,7 @@ if (r_status EQ FAILURE) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 ; END_BLOCK_2
@@ -1608,7 +1608,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 r_dataset_array = *(o_data_variable_structure.s_variable_array);
@@ -1637,7 +1637,7 @@ o_variable_valid_flag = validate_variable_dimensions($
 if (o_variable_valid_flag NE 1) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 if (debug_mode) then begin
@@ -1661,7 +1661,7 @@ if (r_status NE SUCCESS) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
 endif
@@ -1693,7 +1693,7 @@ if (r_status EQ FAILURE) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
 
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif else begin
 
     r_dataset_array = *(o_data_variable_structure.s_variable_array);
@@ -1721,7 +1721,7 @@ o_variable_valid_flag = validate_variable_dimensions($
 if (o_variable_valid_flag NE 1) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
     if (debug_mode) then begin
@@ -1746,7 +1746,7 @@ endif
         donotcare = error_log_writer(routine_name,msg);
         donotcare = clean_up_combiner(routine_name,i_out_filename);
         ; Must return immediately.
-        return
+        exit, status=39    ; Indicate an error that should be quarantined
     endif
 
 endelse
@@ -1770,7 +1770,7 @@ if (r_status EQ FAILURE) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif else begin
 
     r_dataset_array = *(o_data_variable_structure.s_variable_array);
@@ -1798,7 +1798,7 @@ o_variable_valid_flag = validate_variable_dimensions($
 if (o_variable_valid_flag NE 1) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
     if (debug_mode) then begin
@@ -1823,7 +1823,7 @@ endif
         donotcare = error_log_writer(routine_name,msg);
         donotcare = clean_up_combiner(routine_name,i_out_filename);
         ; Must return immediately.
-        return
+        exit, status=39    ; Indicate an error that should be quarantined
     endif
 endelse
 
@@ -1846,7 +1846,7 @@ if (r_status EQ FAILURE) then begin
     donotcare = error_log_writer(routine_name,msg);
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif else begin
     r_dataset_array = *(o_data_variable_structure.s_variable_array);
     PTR_FREE,o_data_variable_structure.s_variable_array;
@@ -1882,7 +1882,7 @@ o_variable_valid_flag = validate_variable_dimensions($
 if (o_variable_valid_flag NE 1) then begin
     donotcare = clean_up_combiner(routine_name,i_out_filename);
     ; Must return immediately.
-    return
+    exit, status=39    ; Indicate an error that should be quarantined
 endif
 
     r_status = write_control_points_variable_to_netcdf(i_out_filename,i_variable_short_name,$
@@ -1899,7 +1899,7 @@ endif
         donotcare = error_log_writer(routine_name,msg);
         donotcare = clean_up_combiner(routine_name,i_out_filename);
         ; Must return immediately.
-        return
+        exit, status=39    ; Indicate an error that should be quarantined
     endif
 endelse
 
