@@ -513,7 +513,7 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
   # Important note: We have to check for the file age before staging, otherwise the file will get staged but not processed.
   # Check for the age of the file before proceeding.
   $o_proceed_flag = 0;
-  my $i_sst4_filename = get_matching_night_filename_historical($i_data_source,$working_on_this_file);
+  my $i_sst4_filename = get_matching_night_filename_historical($i_data_source,$working_on_this_file,$scratch_area);
   ($o_proceed_flag,$o_file_age,$o_night_or_day) = proceed_with_processing_sst_file($working_on_this_file,$i_sst4_filename,$i_threshold_to_wait);
   if ($o_proceed_flag == 0) {
     $index_to_sst_sst4_list = $index_to_sst_sst4_list + 1;  # Index this so we can skip to next name.
@@ -1121,6 +1121,7 @@ sub get_matching_night_filename_historical {
 
     my $i_data_source                  = shift;
     my $i_sst_filename_compressed_file = shift;
+    my $i_scratch_area                 = shift;
 
     my $find         = "SST.nc";                               # Look for this string.
     my $night_file_token = $g_gcjm->get_night_file_token_in_name($i_data_source);
@@ -1130,9 +1131,18 @@ sub get_matching_night_filename_historical {
 
     my $o_sst4_filename_compressed_file = $i_sst_filename_compressed_file; # Get the SST4.nc name.
 
-    # If the SST4.nc file does not exist, return "DUMMY_SST4_FILENAME" otherwise return the good name.
+    # If the SST3.nc does not exist in the downloads, check the holding_tank
     if (not (-e $o_sst4_filename_compressed_file)) {
-        $o_sst4_filename_compressed_file = "DUMMY_" . $night_file_token . "_FILENAME";
+        
+        my $o_sst3_filename = basename($o_sst4_filename_compressed_file);
+        my $full_sst3_name_to_search = $i_scratch_area . "/holding_tank/" . $o_sst3_filename;
+        if (-e $full_sst3_name_to_search) {
+            $o_sst4_filename_compressed_file = $full_sst3_name_to_search;
+
+        # The SST3.nc file does not exist, return "DUMMY_SST3_FILENAME".
+        } else {
+            $o_sst4_filename_compressed_file = "DUMMY_" . $night_file_token . "_FILENAME";
+        }
     }
 
     return($o_sst4_filename_compressed_file);
@@ -1171,7 +1181,7 @@ sub stage_input_files_for_combiner_historical {
 
     my $sst_filename_compressed_file  = $sst_sst4_filelist[$index_to_sst_sst4_list];
     chomp ($sst_filename_compressed_file);
-    my $sst4_filename_compressed_file = get_matching_night_filename_historical($i_data_source,$sst_filename_compressed_file);
+    my $sst4_filename_compressed_file = get_matching_night_filename_historical($i_data_source,$sst_filename_compressed_file,$scratch_area);
     
     # Remove the carriage return
 
