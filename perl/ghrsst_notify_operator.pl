@@ -53,28 +53,28 @@ my $sigevent_data = shift;
 #
 my $report_event = 0;
 for($msg2report) {
-    when(1) {
+    if(1) {
         if($msg_type == "error") { $report_event = 1; }
     }
-    when(2) {
+    elsif(2) {
         if($msg_type == "warning") { $report_event = 1; }
     }
-    when(3) {
+    elsif(3) {
         if($msg_type == "error" || $msg_type == "warning") { $report_event = 1; }
     }
-    when(4) {
+    elsif(4) {
         if($msg_type == "information") { $report_event = 1; }
     }
-    when(5) {
+    elsif(5) {
         if($msg_type == "error" || $msg_type == "information") { $report_event = 1; }
     }
-    when(6) {
+    elsif(6) {
         if($msg_type == "warning" || $msg_type == "information") { $report_event = 1; }
     }
-    when(7) {
+    elsif(7) {
         $report_event = 1;
     }
-    default { $report_event = 0 }    
+    else { $report_event = 0 }    
 }
 
 #
