@@ -57,7 +57,4 @@ resource "aws_batch_job_definition" "generate_batch_jd_combiner" {
   retry_strategy {
     attempts = 3
   }
-  timeout {
-    attempt_duration_seconds = 86400
-  }
 }

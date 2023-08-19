@@ -132,6 +132,7 @@ do "$GHRSST_PERL_LIB_DIRECTORY/is_granule_night_or_day.pl";
 use Getopt::Long;
 use File::Basename;
 use File::Copy;
+use Time::Piece;
 
 my $debug_flag = 0;
 
@@ -421,6 +422,7 @@ my $time_spent_in_uncompressing = 0;
 my $time_spent_in_combining     = 0; 
 my $total_Bytes_in_files        = 0; 
 my $total_Bytes_created_files   = 0; 
+my $num_sst_files_to_wait       = 0;
 
 my $output_directory = $scratch_area;  # Will append the processing type to where to write the output file to.
 
@@ -549,6 +551,9 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
             $num_files_checked      = $num_files_checked + 1;
             $sigevent_msg = "SST_PROCEED_FLAG_FALSE: file has not passed threshold time: original_sst_filename [$original_sst_filename] o_file_age [$o_file_age] i_threshold_to_wait [$i_threshold_to_wait] o_night_or_day [$o_night_or_day]";
             log_this("INFO",$g_routine_name,$sigevent_msg);
+            # Store unprocessed SST file name in threshold text file so that the Generate workflow can be kicked off for this file again.
+            write_threshold_txt($original_sst_filename, lc($i_processing_type));
+            $num_sst_files_to_wait = $num_sst_files_to_wait + 1;
             next;
         }
     }
@@ -775,7 +780,7 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
 
             if ($skip_idl_execution == 0) {
 
-                call_idl_to_perform_combine_operation($when_processed_parameter,
+                $o_status = call_idl_to_perform_combine_operation($when_processed_parameter,
                                                     $i_sst_filename,
                                                     $i_sst4_filename,
                                                     $i_oc_filename,
@@ -785,6 +790,9 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
                                                     $temp_dir,
                                                     $msg2report,
                                                     $sigevent_data);
+                if ($o_status == 1) {
+                    next;
+                }
             } else {
 
                 $index_to_sst_sst4_list     = $index_to_sst_sst4_list + 1;
@@ -1054,6 +1062,7 @@ log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_crawling         $ti
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_uncompress_move  $time_spent_in_uncompressing");
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_combining        $time_spent_in_combining");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_files_read             $num_files_read");
+log_this("INFO",$g_routine_name,"FILES_STAT Number_of_sst_wait               $num_sst_files_to_wait");
 log_this("INFO",$g_routine_name,"FILES_STAT Batch_size                       $NUM_FILES_TO_PROCESS");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_combined_files_created $num_combined_files_created");
 log_this("INFO",$g_routine_name,"FILES_STAT total_Bytes_in_files             $total_Bytes_in_files");
@@ -1560,6 +1569,7 @@ sub call_idl_to_perform_combine_operation {
     my $idl_argument_strings    = "";
     my $rt_flag                 = "";
     my $call_system_command_str = "";
+    my $o_status                = 0;
 
     $idl_argument_strings = "-args \"$i_sst_filename\" \"$i_sst4_filename\" \"$i_oc_filename\" \"$i_out_filename\" \"$i_when_processed_parameter\" ";
 
@@ -1633,7 +1643,24 @@ sub call_idl_to_perform_combine_operation {
     } else {
 #log_this("INFO",$g_routine_name,"Status from [$call_system_command_str] is [" . $? . "]");
       $exit_code = $exit_code >> 8;
-      if ($exit_code != 0)  {
+      if ($exit_code == 39) {
+        # 39 indicates that an error was encountered and the file was quarantined; there is no need to notify operator.
+        log_this("WARN",$g_routine_name,"SYSTEM_CODE=" . $?);
+        log_this("WARN",$g_routine_name,"exit_code=" . $exit_code);
+        log_this("WARN",$g_routine_name,$sigevent_msg);
+
+        my $sigevent_provider      = "JPL";
+        my $sigevent_source        = "GHRSST-PROCESSING";
+        my $sigevent_category      = 'GENERATE';
+        my $sigevent_type = "WARN";
+        my $sigevent_msg = "Possible file quarantine. Something went wrong with executing [$call_system_command_str].";
+        my $sigevent_description   = $sigevent_msg;
+        do "$GHRSST_PERL_LIB_DIRECTORY/raise_sigevent.pl";
+        raise_sigevent($sigevent_url,$sigevent_provider,$sigevent_source,$sigevent_type,$sigevent_category,$sigevent_description,$sigevent_data);
+
+        $o_status = 1;
+
+      } elsif ($exit_code != 0)  {
         log_this("ERROR",$g_routine_name,"SYSTEM_CODE=" . $?);
         log_this("ERROR",$g_routine_name,"exit_code=" . $exit_code);
         $sigevent_type = "error";
@@ -1656,6 +1683,7 @@ sub call_idl_to_perform_combine_operation {
         # Don't exit.  Just allow the rest of the code to perform cleaning by moving "errant" files to quarantine directory.
         # exit(1);
     }
+    return $o_status;
 }
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -1987,7 +2015,6 @@ sub is_oc_name_in_list {
 
     # Check if oc file exsts
     if (-e $o_oc_file_name) {
-        print "FOUND\n";
         $o_actual_oc_filename = $o_oc_file_name;
         $o_oc_name_in_list_flag = 1;
         my ($index) = grep { @i_sst_filenames_list[$_] eq "$o_actual_oc_filename\n" } (0 .. @i_sst_filenames_list-1);          
@@ -2000,7 +2027,6 @@ sub is_oc_name_in_list {
         my $oc_name_only = $splitted_tokens[-1];
         $o_oc_file_name = find_new_oc_filename($i_sst_full_name_to_search,$oc_name_only);
         if (-e $o_oc_file_name) {
-            print "FOUND BY TIME\n";
             $o_actual_oc_filename = $o_oc_file_name;
             $o_oc_name_in_list_flag = 1;
             my ($index) = grep { @i_sst_filenames_list[$_] eq "$o_actual_oc_filename\n" } (0 .. @i_sst_filenames_list-1);          
@@ -2360,6 +2386,35 @@ sub proceed_with_processing_sst_file {
     log_this("DEBUG",$g_routine_name,"i_sst_filename,i_staged_sst_filename,i_sst4_filename,i_oc_filename [$i_sst_filename] [$i_staged_sst_filename] [$i_sst4_filename] [$i_oc_filename] [$o_night_or_day] [$o_file_age] [$i_threshold_to_wait] [$o_proceed_flag]");
     #exit(0);
     return ($o_proceed_flag,$o_file_age,$o_night_or_day);
+}
+
+#------------------------------------------------------------------------------------------------------------------------
+
+sub write_threshold_txt {
+    # Function to write SST files that did not have matching OC or SST4 files to text file.
+    my $i_sst_file = shift;    # Name of SST file
+    my $i_processing_type = shift;
+    
+    my $sst_filename = basename($i_sst_file);
+
+    my $timestamp = localtime->strftime('%Y%m%dT%H0000');
+    my $threshold_txt = $ENV{COMBINER_JOB_DIR} . "/" . $i_processing_type . "_" . $timestamp . "_" . $ENV{RANDOM_NUMBER} . ".txt";
+    
+    # Test if threshold file exists and append to file contents if it does.
+    my $fh = *FILEHANDLE;
+    if (-e $threshold_txt) {
+        open($fh, '>>', $threshold_txt) or die "Could not open threshold file $threshold_txt: $!.\n";
+        log_this("INFO", "write_threshold_txt", "Opening file to append: $threshold_txt.");
+    } else {
+        # Create a new file for writing.
+        open($fh, '>', $threshold_txt) or die "Could not open threshold file $threshold_txt: $!.\n";
+        log_this("INFO", "write_threshold_txt", "Creating file to write: $threshold_txt.");
+    }
+
+    # Write SST file name to file and close
+    say $fh $sst_filename;
+    log_this("INFO", "write_threshold_txt", "Wrote $sst_filename to $threshold_txt.");
+    close $fh;
 }
 
 #------------------------------------------------------------------------------------------------------------------------
