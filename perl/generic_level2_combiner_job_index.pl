@@ -519,6 +519,8 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
     $index_to_sst_sst4_list = $index_to_sst_sst4_list + 1;  # Index this so we can skip to next name.
     $sigevent_msg = "SST_PROCEED_FLAG_FALSE: file has not passed threshold time: working_on_this_file [$working_on_this_file] o_file_age [$o_file_age] i_threshold_to_wait [$i_threshold_to_wait] o_night_or_day [$o_night_or_day]";
     log_this("INFO",$g_routine_name,$sigevent_msg);
+    $i_sst_wait = basename($working_on_this_file);
+    log_this("INFO", $g_routine_name, "SST wait: $i_sst_wait | threshold: $i_threshold_to_wait | file age: $o_file_age");
     # Store unprocessed SST file name in threshold text file so that the Generate workflow can be kicked off for this file again.
     write_threshold_txt($working_on_this_file, lc($i_processing_type));
     $num_sst_files_to_wait = $num_sst_files_to_wait + 1;
@@ -837,6 +839,8 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
     # Only increment the number of files created if it was indeed successfully or running our test.
     if (($o_file_created_successfully_flag == 1) || ($test_only_flag eq "true")) {
         $num_combined_files_created = $num_combined_files_created + 1; # Keep track of how many files we have combined.
+        $combined_file=basename($o_actual_file_to_look);
+        log_this("INFO", $g_routine_name, "Created: $combined_file"); 
     }
 
     my $time_stop_one_file_combining = time();
@@ -886,6 +890,12 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
    # Reset back the names of the SST4 and LAC_OC so we can clean them up.
    $i_sst4_filename = $saved_sst4_filename;
    $i_oc_filename   = $i_oc_filename;
+
+    # Log processed and created files
+    $processed_sst = basename($i_sst_filename);
+    log_this("INFO", $g_routine_name, "Processed: $processed_sst");
+    $processed_sst4 = basename($i_sst4_filename);
+    log_this("INFO", $g_routine_name, "Processed: $processed_sst4") if($i_sst4_filename ne "DUMMY_SST3_FILENAME");
 
 
     #------------------------------------------------------------------------------------------------
@@ -1044,11 +1054,13 @@ my $total_Gigabytes_in_files = $total_Bytes_in_files / $Gigabyte_to_Byte_convers
 
 # Print run statistics.
 
+log_this("INFO", $g_routine_name, "Number of SST files combined: $num_files_read");
+log_this("INFO", $g_routine_name, "Number of combined files created: $num_combined_files_created");
+log_this("INFO", $g_routine_name, "Total SST files to wait on processing: $num_sst_files_to_wait");
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_crawling         $time_spent_in_crawling");
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_uncompress_move  $time_spent_in_uncompressing");
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_combining        $time_spent_in_combining");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_files_read             $num_files_read");
-log_this("INFO",$g_routine_name,"FILES_STAT Number_of_sst_wait               $num_sst_files_to_wait");
 log_this("INFO",$g_routine_name,"FILES_STAT Batch_size                       $NUM_FILES_TO_PROCESS");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_combined_files_created $num_combined_files_created");
 log_this("INFO",$g_routine_name,"FILES_STAT total_Bytes_in_files             $total_Bytes_in_files");
@@ -2156,7 +2168,9 @@ sub log_this {
     my $i_function_name = shift;  # Where the logging is coming from.  Useful in debuging if something goes wrong.
     my $i_log_message   = shift;  # The text you wish to log screen.
 
-    my $now_is = localtime;
+    # my $now_is = localtime;
 
-    print $now_is . " " . $i_log_type . " [" . $i_function_name . "] " . $i_log_message . "\n";
+    # print $now_is . " " . $i_log_type . " [" . $i_function_name . "] " . $i_log_message . "\n";
+
+    print $i_function_name . " - " . $i_log_type . ": " . $i_log_message . "\n";
 }

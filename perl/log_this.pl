@@ -14,8 +14,10 @@ sub log_this {
     my $i_function_name = shift;  # Where the logging is coming from.  Useful in debuging if something goes wrong.
     my $i_log_message   = shift;  # The text you wish to log screen.
 
-    my $now_is = localtime;
+    # my $now_is = localtime;
 
-    print $now_is . " " . $i_log_type . " [" . $i_function_name . "] " . $i_log_message . "\n";
+    # print $now_is . " " . $i_log_type . " [" . $i_function_name . "] " . $i_log_message . "\n";
+
+    print $i_function_name . " - " . $i_log_type . ": " . $i_log_message . "\n";
 }
 
