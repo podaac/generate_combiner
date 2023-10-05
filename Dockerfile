@@ -1,17 +1,17 @@
 # Stage 0 - Create from Perl 5.34.1-slim-buster image and install dependencies
-# FROM perl:5.39-slim-bullseye as stage0
-FROM perl:5.39-slim-bullseye
+FROM perl:5.39-slim-bullseye as stage0
+# FROM perl:5.39-slim-bullseye
 RUN apt update && apt install -y tcsh libfreetype6 libxpm4 libxmu6 libidn11 procps build-essential libxinerama-dev
 RUN ln -s /usr/lib/x86_64-linux-gnu/libXpm.so.4.11.0 /usr/lib/x86_64-linux-gnu/libXp.so.6
 
 # Stage 1 - Copy Generate code
-# FROM stage0 as stage1
+FROM stage0 as stage1
 RUN /bin/mkdir /data
 COPY . /app
 RUN /bin/chmod +x /app/python/notify.py
 
 # Stage 2 - IDL installation
-# FROM stage1 AS stage2
+FROM stage1 AS stage2
 ARG IDL_INSTALLER
 ARG IDL_VERSION
 RUN /bin/mkdir /root/idl_install \
@@ -24,7 +24,7 @@ RUN /bin/mkdir /root/idl_install \
     && /bin/rm -rf /root/idl_install
 
 # Stage 2 - Local Perl Library
-# FROM stage1 as stage2
+FROM stage2 as stage3
 RUN /usr/bin/yes | /usr/local/bin/cpan App::cpanminus \
     && /usr/local/bin/cpanm Date::Calc \
     && /usr/local/bin/cpanm Bundle::LWP \
@@ -32,7 +32,7 @@ RUN /usr/bin/yes | /usr/local/bin/cpan App::cpanminus \
     && /usr/local/bin/cpanm JSON
 
 # Stage 3 - Install Python
-# FROM stage2 as stage3
+FROM stage3 as stage4
 RUN apt update && apt install -y software-properties-common \
     && add-apt-repository ppa:deadsnakes/ppa \
     && apt install -y python3 python3-pip python3-venv \
@@ -40,7 +40,7 @@ RUN apt update && apt install -y software-properties-common \
     && /app/env/bin/pip install boto3 requests
 
 # Stage 4 - Execute code
-# FROM stage3 as stage4
+FROM stage4 as stage5
 LABEL version="0.1" \
     description="Containerized Generate: Combiner"
 ENTRYPOINT [ "/bin/tcsh", "/app/shell/startup_level2_combiners.csh" ]
