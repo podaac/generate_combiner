@@ -81,7 +81,7 @@ sub mkdir_with_error_handling {
             # Notify operator and return.
             $sigevent_msg = "MKDIR_FAILED " . $i_directory_to_create;
             log_this("ERROR",$g_routine_name,$sigevent_msg);
-            log_this("ERROR",$g_routine_name,"error code: $!");
+            log_this("INFO",$g_routine_name,"error code: $!");
             $sigevent_type = "ERROR";
             $sigevent_category = "GENERATE";
             $sigevent_url = $ENV{GHRSST_SIGEVENT_URL};

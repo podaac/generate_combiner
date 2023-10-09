@@ -101,17 +101,17 @@ if($report_event) {
 # Check for errors.
 #
 if ($? == -1) {
-    print "ghrsst_notify_operator: system $args[0] < $args[1] failed to execute: $?\n";
+    print "ghrsst_notify_operator - ERROR: system $args[0] < $args[1] failed to execute: $?\n";
     $o_status = 1;
 } elsif ($? == 256){
-    print "ghrsst_notify_operator: Cannot find file $args[1].\n";
+    print "ghrsst_notify_operator - ERROR: Cannot find file $args[1].\n";
     $o_status = 1;
 } elsif ($? == 0){
-    print "ghrsst_notify_operator: system $args[0] < $args[1] executed with: $?\n";
-    print "ghrsst_notify_operator: Everything is OK.\n";
+    print "ghrsst_notify_operator - INFO: system $args[0] < $args[1] executed with: $?\n";
+    print "ghrsst_notify_operator - INFO: Everything is OK.\n";
     $o_status = 0;
 } else {
-        print "ghrsst_notify_operator: system $args[0] < $args[1] executed with: $?\n";
+        print "ghrsst_notify_operator - ERROR: system $args[0] < $args[1] executed with: $?\n";
     $o_status = 1;
 }
     return ($o_status);

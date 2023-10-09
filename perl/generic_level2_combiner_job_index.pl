@@ -323,6 +323,7 @@ log_this("INFO",$g_routine_name,"BEGIN_CRAWLING $granule_search_directory");
 
 my ($status,$file_list_ref) = load_file_list($granule_search_directory,$i_processing_type);
 log_this("INFO",$g_routine_name,"CRAWL_STAGE " . scalar(@$file_list_ref) . " CRAWL_DIRECTORY " . $granule_search_directory); 
+log_this("INFO",$g_routine_name,"Number of downloads: " . scalar(@$file_list_ref));
 
 my $time_end_crawling = time();
 my $time_spent_in_crawling = $time_end_crawling - $time_start_crawling; 
@@ -892,10 +893,12 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
    $i_oc_filename   = $i_oc_filename;
 
     # Log processed and created files
-    $processed_sst = basename($i_sst_filename);
-    log_this("INFO", $g_routine_name, "Processed: $processed_sst");
-    $processed_sst4 = basename($i_sst4_filename);
-    log_this("INFO", $g_routine_name, "Processed: $processed_sst4") if($i_sst4_filename ne "DUMMY_SST3_FILENAME");
+    if ($o_file_created_successfully_flag == 1) {
+        $processed_sst = basename($i_sst_filename);
+        log_this("INFO", $g_routine_name, "Processed: $processed_sst");
+        $processed_sst4 = basename($i_sst4_filename);
+        log_this("INFO", $g_routine_name, "Processed: $processed_sst4") if($i_sst4_filename ne "DUMMY_SST3_FILENAME");
+    }
 
 
     #------------------------------------------------------------------------------------------------
@@ -1531,16 +1534,16 @@ sub call_idl_to_perform_combine_operation {
 
     if ($? == -1) {
 #log_this("INFO",$g_routine_name,"Status from [$call_system_command_str] is [" . $? . "]");
-        print "modis_level2_combiner:ERROR: [$call_system_command_str] failed to execute: $?\n";
+        print "modis_level2_combiner - INFO: [$call_system_command_str] failed to execute: $?\n";
         $o_status = 1;
         $sigevent_type = "error";
         $sigevent_msg = "Something went wrong with executing [$call_system_command_str]";
-        log_this("ERROR",$g_routine_name,$sigevent_msg);
+        log_this("INFO",$g_routine_name,$sigevent_msg);
         ghrsst_notify_operator($g_routine_name,$sigevent_type,$sigevent_msg,$sigevent_email_to,$sigevent_clause,$temp_dir,$msg2report,$sigevent_data);
         exit(1);
     } elsif ($? == 256){
 #log_this("INFO",$g_routine_name,"Status from [$call_system_command_str] is [" . $? . "]");
-        print "modis_level2_combiner:ERROR: Cannot find file $GHRSST_IDL_LIB_DIRECTORY/combine_sst_and_sst4_files.sav \n";
+        print "modis_level2_combiner - ERROR: Cannot find file $GHRSST_IDL_LIB_DIRECTORY/combine_sst_and_sst4_files.sav \n";
         $sigevent_type = "error";
         $sigevent_msg = "Something went wrong with executing [$call_system_command_str]";
         $o_status = 1;
@@ -1555,15 +1558,15 @@ sub call_idl_to_perform_combine_operation {
       $exit_code = $exit_code >> 8;
       if ($exit_code == 39) {
         # 39 indicates that an error was encountered and the file was quarantined; there is no need to notify operator.
-        log_this("WARN",$g_routine_name,"SYSTEM_CODE=" . $?);
-        log_this("WARN",$g_routine_name,"exit_code=" . $exit_code);
-        log_this("WARN",$g_routine_name,$sigevent_msg);
+        log_this("INFO",$g_routine_name,"SYSTEM_CODE=" . $?);
+        log_this("INFO",$g_routine_name,"exit_code=" . $exit_code);
 
         my $sigevent_provider      = "JPL";
         my $sigevent_source        = "GHRSST-PROCESSING";
         my $sigevent_category      = 'GENERATE';
         my $sigevent_type = "WARN";
         my $sigevent_msg = "Possible file quarantine. Something went wrong with executing [$call_system_command_str].";
+        log_this("INFO",$g_routine_name,$sigevent_msg);
         my $sigevent_description   = $sigevent_msg;
         do "$GHRSST_PERL_LIB_DIRECTORY/raise_sigevent.pl";
         raise_sigevent($sigevent_url,$sigevent_provider,$sigevent_source,$sigevent_type,$sigevent_category,$sigevent_description,$sigevent_data);
@@ -1571,12 +1574,12 @@ sub call_idl_to_perform_combine_operation {
         $o_status = 1;
 
       } elsif ($exit_code != 0)  {
-        log_this("ERROR",$g_routine_name,"SYSTEM_CODE=" . $?);
-        log_this("ERROR",$g_routine_name,"exit_code=" . $exit_code);
+        log_this("INFO",$g_routine_name,"SYSTEM_CODE=" . $?);
+        log_this("INFO",$g_routine_name,"exit_code=" . $exit_code);
         $sigevent_type = "error";
         $sigevent_msg = "IDL or combiner code may be not be available.  Something went wrong with executing [$call_system_command_str]";
         #print "modis_level2_combiner:ERROR: system [$call_system_command_str] executed with: $?\n";
-        log_this("ERROR",$g_routine_name,$sigevent_msg);
+        log_this("INFO",$g_routine_name,$sigevent_msg);
 
         # We suspect that there is issue with IDL so we will use Perl to raise a sigevent.
 
