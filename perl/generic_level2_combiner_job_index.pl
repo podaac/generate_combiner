@@ -129,6 +129,7 @@ do "$GHRSST_PERL_LIB_DIRECTORY/mkdir_with_error_handling.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/move_combined_file_to_final_location.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/move_to_holding_tank_with_error_handling.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/register_job.pl";
+do "$GHRSST_PERL_LIB_DIRECTORY/write_final_log.pl";
 
 use File::Basename;
 use File::Copy;
@@ -522,6 +523,7 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
     log_this("INFO",$g_routine_name,$sigevent_msg);
     $i_sst_wait = basename($working_on_this_file);
     log_this("INFO", $g_routine_name, "SST wait: $i_sst_wait | threshold: $i_threshold_to_wait | file age: $o_file_age");
+    write_final_log("sst_wait: $i_sst_wait | threshold: $i_threshold_to_wait | file_age: $o_file_age");
     # Store unprocessed SST file name in threshold text file so that the Generate workflow can be kicked off for this file again.
     write_threshold_txt($working_on_this_file, lc($i_processing_type));
     $num_sst_files_to_wait = $num_sst_files_to_wait + 1;
@@ -842,6 +844,7 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
         $num_combined_files_created = $num_combined_files_created + 1; # Keep track of how many files we have combined.
         $combined_file=basename($o_actual_file_to_look);
         log_this("INFO", $g_routine_name, "Created: $combined_file"); 
+        write_final_log("created: $combined_file");
     }
 
     my $time_stop_one_file_combining = time();
@@ -896,8 +899,10 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) && ($num_combined_files_c
     if ($o_file_created_successfully_flag == 1) {
         $processed_sst = basename($i_sst_filename);
         log_this("INFO", $g_routine_name, "Processed: $processed_sst");
+        write_final_log("processed: $processed_sst");
         $processed_sst4 = basename($i_sst4_filename);
         log_this("INFO", $g_routine_name, "Processed: $processed_sst4") if($i_sst4_filename ne "DUMMY_SST3_FILENAME");
+        write_final_log("processed: $processed_sst4") if($i_sst4_filename ne "DUMMY_SST3_FILENAME");
     }
 
 
@@ -1097,6 +1102,10 @@ if ($g_debug) {
     $sigevent_data = ""; # Must reset to empty string to signify there's no data to pass along.
     ghrsst_notify_operator($g_routine_name,$sigevent_type,$sigevent_msg,$sigevent_email_to,$sigevent_clause,$temp_dir,$msg2report,$sigevent_data);
 }
+
+# Write message to final log message
+my $final_log_string = "totals: number_sst_combined: $num_files_read - number_combined_created: $num_combined_files_created - combiner_wait_total: $num_sst_files_to_wait";
+write_final_log($final_log_string);
 
 my $job_delete_status = delete_job($g_routine_name,$i_processing_type,$job_name);
 

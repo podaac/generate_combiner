@@ -19,7 +19,7 @@
 # Set the environments.
 
 # source $HOME/define_modis_operation_environment_for_combiner
-source /app/config/combiner_config    # NET edit (Docker container)
+source /app/config/combiner_config
 set module = "startup_level2_combiners.csh"
 
 # Get the input.
@@ -67,6 +67,10 @@ echo "startup_level2_combiner.csh, RANDOM NUMBER: $RANDOM_NUMBER"
 # Set the input file name as an environment variable
 
 setenv JSON_FILE $json_file
+
+# Set final log message file as an environment variable
+
+setenv FINAL_LOG_MESSAGE $SCRATCH_AREA/final_log_message_$RANDOM_NUMBER.txt
 
 # Test and ajust job index for running in AWS
 
@@ -116,11 +120,16 @@ echo "$module - INFO: Job index: $JOB_INDEX"
 echo "$module - INFO: JSON file: $json_file"
 echo "$module - INFO: Dataset: $dataset"
 echo "$module - INFO: Processing type: $processing_type"
+echo "execution_data: job_id: $AWS_BATCH_JOB_ID - job_index: $JOB_INDEX - json_file: $json_file - dataset: $dataset - processing_type: $processing_type" > $FINAL_LOG_MESSAGE
 
 # Call the script to combine the files
 
 echo "perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy"
 perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy
+
+# Print final log message
+
+$GHRSST_PYTHON_LIB_DIRECTORY/print_final_log.py
 
 # Check exit code
 
