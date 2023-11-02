@@ -51,7 +51,7 @@ FUNCTION  modis_notify_operator, routine_name, msg_type, msg, email, sigevent, t
          'information': msg_type = 'INFO'
          'warning'    : msg_type = 'WARN'
          'error'      : msg_type = 'ERROR'
-         ELSE: PRINT, 'Invalid msg_type: ', msg_type
+         ELSE: PRINT, 'wrapper_ghrsst_notify_operator - INFO: Invalid msg_type: ', msg_type
       ENDCASE
 
    ENDIF
@@ -70,8 +70,8 @@ FUNCTION  modis_notify_operator, routine_name, msg_type, msg, email, sigevent, t
 
    ; Exit if encountered error
    IF (exit_status NE 0 ) THEN BEGIN
-      PRINT, "ERROR encountered when calling system command: ", system_command_string
-      PRINT, "Exiting program."
+      PRINT, "wrapper_ghrsst_notify_operator - ERROR: Encountered when calling system command: ", system_command_string
+      PRINT, "wrapper_ghrsst_notify_operator - INFO: Exiting program."
       EXIT, status = 1
    ENDIF
 

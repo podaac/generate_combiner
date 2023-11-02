@@ -19,7 +19,8 @@
 # Set the environments.
 
 # source $HOME/define_modis_operation_environment_for_combiner
-source /app/config/combiner_config    # NET edit (Docker container)
+source /app/config/combiner_config
+set module = "startup_level2_combiners.csh"
 
 # Get the input.
 
@@ -63,22 +64,18 @@ else
 endif
 echo "startup_level2_combiner.csh, RANDOM NUMBER: $RANDOM_NUMBER"
 
-# Create the log file
-
-set today_date = `date '+%m_%d_%y'`
-set combiner_log_name = "$log_top_level_directory/level2_combiner_{$data_type}_{$processing_type}_output_{$today_date}_{$RANDOM_NUMBER}.log"   # Create unique combiner log
-touch $combiner_log_name
-
 # Set the input file name as an environment variable
 
 setenv JSON_FILE $json_file
-echo "startup_level2_combiner.csh, JSON FILE: $json_file"
+
+# Set final log message file as an environment variable
+
+setenv FINAL_LOG_MESSAGE $SCRATCH_AREA/final_log_message_$RANDOM_NUMBER.txt
 
 # Test and ajust job index for running in AWS
 
-echo "Displaying all environment variable"
-printenv
-echo ""
+# echo "Displaying all environment variable"
+# printenv
 if ($job_index == "-235") then
     echo "startup_level2_combiner.csh, AWS BATCH JOB ARRAY INDEX: $AWS_BATCH_JOB_ARRAY_INDEX"
     set index = $AWS_BATCH_JOB_ARRAY_INDEX;
@@ -86,11 +83,11 @@ else
     set index = $job_index
 endif
 setenv JOB_INDEX $index
-echo "startup_level2_combiner.csh, JOB INDEX: $JOB_INDEX"
 
 # Determine which script to call with specific parameters based on data_type
 
 if ($data_type == "MODIS_A") then
+    set dataset = "MODIS Aqua"
     set script_name = "modis_level2_combiner_historical_job_index.pl"
     if ($processing_type == "QUICKLOOK") then
         set p_type = "AQUA_QUICKLOOK"
@@ -98,6 +95,7 @@ if ($data_type == "MODIS_A") then
         set p_type = "AQUA_REFINED"
     endif
 else if ($data_type == "MODIS_T") then
+    set dataset = "MODIS Terra"
     set script_name = "modis_level2_combiner_historical_job_index.pl"
     if ($processing_type == "QUICKLOOK") then
         set p_type = "TERRA_QUICKLOOK"
@@ -106,6 +104,7 @@ else if ($data_type == "MODIS_T") then
     endif
 else
     setenv GHRSST_OBPG_USE_2019_NAMING_PATTERN true
+    set dataset = "VIIRS"
     set script_name = "generic_level2_combiner_job_index.pl"
     if ($processing_type == "QUICKLOOK") then
         set p_type = "VIIRS_QUICKLOOK"
@@ -114,10 +113,23 @@ else
     endif
 endif
 
+# Echo details about the job
+
+echo "$module - INFO: Job identifier: $AWS_BATCH_JOB_ID"
+echo "$module - INFO: Job index: $JOB_INDEX"
+echo "$module - INFO: JSON file: $json_file"
+echo "$module - INFO: Dataset: $dataset"
+echo "$module - INFO: Processing type: $processing_type"
+echo "execution_data: dataset: $dataset - processing_type: $processing_type - job_id: $AWS_BATCH_JOB_ID - job_index: $JOB_INDEX - json_file: $json_file" > $FINAL_LOG_MESSAGE
+
 # Call the script to combine the files
 
-echo "perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy | tee $combiner_log_name"
-perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy | tee $combiner_log_name
+echo "perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy"
+perl $GHRSST_PERL_LIB_DIRECTORY/$script_name -data_source=$data_type -processing_type=$p_type -max_files=$num_files_to_combine -threshold_to_wait=$num_minutes_to_wait -perform_move_instead_of_copy=$value_move_instead_of_copy
+
+# Print final log message
+
+$GHRSST_PYTHON_LIB_DIRECTORY/print_final_log.py
 
 # Check exit code
 

@@ -37,11 +37,9 @@ sub delete_job {
         }
 
         unlink($job_name);
-        my $now_is = localtime;
-        print $now_is . " INFO " . "[$i_function_name] REGISTERED_JOB_END $process_id_from_file $job_name\n";
+        print "$i_function_name - INFO: REGISTERED_JOB_END $process_id_from_file $job_name\n";
     } else {
-        my $now_is = localtime;
-        print $now_is . " WARN " . "[$i_function_name] No job $job_name exist.\n";
+        print "$i_function_name - WARN: NO JOB $job_name exist.\n";
         $o_job_delete_status = 0;  # If cannot delete job, return 0.
     }
 

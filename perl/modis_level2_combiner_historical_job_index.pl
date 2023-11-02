@@ -128,6 +128,7 @@ do "$GHRSST_PERL_LIB_DIRECTORY/move_to_holding_tank_with_error_handling.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/clean_up.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/convert_run_log_for_interprocess_communication_historical.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/is_granule_night_or_day.pl";
+do "$GHRSST_PERL_LIB_DIRECTORY/write_final_log.pl";
 
 use Getopt::Long;
 use File::Basename;
@@ -340,7 +341,8 @@ my $time_start_crawling = time();
 log_this("INFO",$g_routine_name,"BEGIN_CRAWLING $modis_search_directory"); 
 
 my ($status,$file_list_ref) = load_file_list($modis_search_directory,$i_processing_type);
-log_this("INFO",$g_routine_name,"CRAWL_STAGE " . scalar(@$file_list_ref) . " CRAWL_DIRECTORY " . $modis_search_directory); 
+log_this("INFO",$g_routine_name,"CRAWL_STAGE " . scalar(@$file_list_ref) . " CRAWL_DIRECTORY " . $modis_search_directory);
+log_this("INFO",$g_routine_name,"Number of downloads: " . scalar(@$file_list_ref));
 
 my $time_end_crawling = time();
 my $time_spent_in_crawling = $time_end_crawling - $time_start_crawling; 
@@ -551,6 +553,9 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
             $num_files_checked      = $num_files_checked + 1;
             $sigevent_msg = "SST_PROCEED_FLAG_FALSE: file has not passed threshold time: original_sst_filename [$original_sst_filename] o_file_age [$o_file_age] i_threshold_to_wait [$i_threshold_to_wait] o_night_or_day [$o_night_or_day]";
             log_this("INFO",$g_routine_name,$sigevent_msg);
+            $i_sst_wait = basename($original_sst_filename);
+            log_this("INFO", $g_routine_name, "SST wait: $i_sst_wait | threshold: $i_threshold_to_wait | file age: $o_file_age");
+            write_final_log("sst_wait: $i_sst_wait | threshold: $i_threshold_to_wait | file_age: $o_file_age");
             # Store unprocessed SST file name in threshold text file so that the Generate workflow can be kicked off for this file again.
             write_threshold_txt($original_sst_filename, lc($i_processing_type));
             $num_sst_files_to_wait = $num_sst_files_to_wait + 1;
@@ -849,6 +854,9 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
             # Only increment the number of files created if it was indeed successfully or running our test.
             if (($o_file_created_successfully_flag == 1) || ($test_only_flag eq "true")) {
                 $num_combined_files_created = $num_combined_files_created + 1; # Keep track of how many files we have combined.
+                $combined_file=basename($o_actual_file_to_look);
+                log_this("INFO", $g_routine_name, "Created: $combined_file");
+                write_final_log("created: $combined_file");
             }
 
             my $time_stop_one_file_combining = time();
@@ -898,6 +906,19 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
         # Reset back the names of the SST4 and LAC_OC so we can clean them up.
         $i_sst4_filename = $saved_sst4_filename;
         $i_oc_filename   = $i_oc_filename;
+
+        # Log processed and created files
+        if ($o_file_created_successfully_flag == 1) {
+            $processed_sst = basename($i_sst_filename);
+            log_this("INFO", $g_routine_name, "Processed: $processed_sst");
+            write_final_log("processed: $processed_sst");
+            $processed_sst4 = basename($i_sst4_filename);
+            log_this("INFO", $g_routine_name, "Processed: $processed_sst4") if($i_sst4_filename ne "DUMMY_SST4_FILENAME");
+            write_final_log("processed: $processed_sst4") if($i_sst4_filename ne "DUMMY_SST4_FILENAME");
+            $processed_oc = basename($i_oc_filename);
+            log_this("INFO", $g_routine_name, "Processed: $processed_oc") if ($i_oc_filename ne "DUMMY_OC_FILENAME");
+            write_final_log("processed: $processed_oc") if($i_oc_filename ne "DUMMY_OC_FILENAME");
+        }
 
 
         #------------------------------------------------------------------------------------------------
@@ -1058,11 +1079,13 @@ my $total_Gigabytes_in_files = $total_Bytes_in_files / $Gigabyte_to_Byte_convers
 
 # Print run statistics.
 
+log_this("INFO", $g_routine_name, "Number of SST files combined: $num_files_read");
+log_this("INFO", $g_routine_name, "Number of combined files created: $num_combined_files_created");
+log_this("INFO", $g_routine_name, "Total SST files to wait on processing: $num_sst_files_to_wait");
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_crawling         $time_spent_in_crawling");
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_uncompress_move  $time_spent_in_uncompressing");
 log_this("INFO",$g_routine_name,"TIME_STAT Seconds_spent_in_combining        $time_spent_in_combining");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_files_read             $num_files_read");
-log_this("INFO",$g_routine_name,"FILES_STAT Number_of_sst_wait               $num_sst_files_to_wait");
 log_this("INFO",$g_routine_name,"FILES_STAT Batch_size                       $NUM_FILES_TO_PROCESS");
 log_this("INFO",$g_routine_name,"FILES_STAT Number_of_combined_files_created $num_combined_files_created");
 log_this("INFO",$g_routine_name,"FILES_STAT total_Bytes_in_files             $total_Bytes_in_files");
@@ -1096,6 +1119,11 @@ if ($g_debug) {
     $sigevent_data = ""; # Must reset to empty string to signify there's no data to pass along.
     ghrsst_notify_operator($g_routine_name,$sigevent_type,$sigevent_msg,$sigevent_email_to,$sigevent_clause,$temp_dir,$msg2report,$sigevent_data);
 }
+
+
+# Write message to final log message
+my $final_log_string = "totals: number_sst_combined: $num_files_read - number_combined_created: $num_combined_files_created - combiner_wait_total: $num_sst_files_to_wait";
+write_final_log($final_log_string);
 
 my $job_delete_status = delete_job($g_routine_name,$i_processing_type,$job_name);
 
@@ -1621,16 +1649,16 @@ sub call_idl_to_perform_combine_operation {
 
     if ($? == -1) {
 #log_this("INFO",$g_routine_name,"Status from [$call_system_command_str] is [" . $? . "]");
-        print "modis_level2_combiner:ERROR: [$call_system_command_str] failed to execute: $?\n";
+        print "modis_level2_combiner - INFO: [$call_system_command_str] failed to execute: $?\n";
         $o_status = 1;
         $sigevent_type = "error";
         $sigevent_msg = "Something went wrong with executing [$call_system_command_str]";
-        log_this("ERROR",$g_routine_name,$sigevent_msg);
+        log_this("INFO",$g_routine_name,$sigevent_msg);
         ghrsst_notify_operator($g_routine_name,$sigevent_type,$sigevent_msg,$sigevent_email_to,$sigevent_clause,$temp_dir,$msg2report,$sigevent_data);
         exit(1);
     } elsif ($? == 256){
 #log_this("INFO",$g_routine_name,"Status from [$call_system_command_str] is [" . $? . "]");
-        print "modis_level2_combiner:ERROR: Cannot find file $GHRSST_IDL_LIB_DIRECTORY/combine_sst_and_sst4_files.sav \n";
+        print "modis_level2_combiner - INFO: Cannot find file $GHRSST_IDL_LIB_DIRECTORY/combine_sst_and_sst4_files.sav \n";
         $sigevent_type = "error";
         $sigevent_msg = "Something went wrong with executing [$call_system_command_str]";
         $o_status = 1;
@@ -1645,15 +1673,15 @@ sub call_idl_to_perform_combine_operation {
       $exit_code = $exit_code >> 8;
       if ($exit_code == 39) {
         # 39 indicates that an error was encountered and the file was quarantined; there is no need to notify operator.
-        log_this("WARN",$g_routine_name,"SYSTEM_CODE=" . $?);
-        log_this("WARN",$g_routine_name,"exit_code=" . $exit_code);
-        log_this("WARN",$g_routine_name,$sigevent_msg);
+        log_this("INFO",$g_routine_name,"SYSTEM_CODE=" . $?);
+        log_this("INFO",$g_routine_name,"exit_code=" . $exit_code);
 
         my $sigevent_provider      = "JPL";
         my $sigevent_source        = "GHRSST-PROCESSING";
         my $sigevent_category      = 'GENERATE';
         my $sigevent_type = "WARN";
         my $sigevent_msg = "Possible file quarantine. Something went wrong with executing [$call_system_command_str].";
+        log_this("INFO",$g_routine_name,$sigevent_msg);
         my $sigevent_description   = $sigevent_msg;
         do "$GHRSST_PERL_LIB_DIRECTORY/raise_sigevent.pl";
         raise_sigevent($sigevent_url,$sigevent_provider,$sigevent_source,$sigevent_type,$sigevent_category,$sigevent_description,$sigevent_data);
@@ -1661,12 +1689,12 @@ sub call_idl_to_perform_combine_operation {
         $o_status = 1;
 
       } elsif ($exit_code != 0)  {
-        log_this("ERROR",$g_routine_name,"SYSTEM_CODE=" . $?);
-        log_this("ERROR",$g_routine_name,"exit_code=" . $exit_code);
+        log_this("INFO",$g_routine_name,"SYSTEM_CODE=" . $?);
+        log_this("INFO",$g_routine_name,"exit_code=" . $exit_code);
         $sigevent_type = "error";
         $sigevent_msg = "IDL or combiner code may be not be available.  Something went wrong with executing [$call_system_command_str]";
         #print "modis_level2_combiner:ERROR: system [$call_system_command_str] executed with: $?\n";
-        log_this("ERROR",$g_routine_name,$sigevent_msg);
+        log_this("INFO",$g_routine_name,$sigevent_msg);
 
         # We suspect that there is issue with IDL so we will use Perl to raise a sigevent.
 
@@ -2424,8 +2452,10 @@ sub log_this {
     my $i_function_name = shift;  # Where the logging is coming from.  Useful in debuging if something goes wrong.
     my $i_log_message   = shift;  # The text you wish to log screen.
 
-    my $now_is = localtime;
+    # my $now_is = localtime;
 
-    print $now_is . " " . $i_log_type . " [" . $i_function_name . "] " . $i_log_message . "\n";
+    # print $now_is . " " . $i_log_type . " [" . $i_function_name . "] " . $i_log_message . "\n";
+
+    print $i_function_name . " - " . $i_log_type . ": " . $i_log_message . "\n";
 
 }

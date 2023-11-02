@@ -48,14 +48,14 @@ sub raise_sigevent {
     my $msg2report = 7;
 
     # Print arguments
-    print "sigevent_source                            = $sigevent_source\n";
-    print "sigevent_type                              = $sigevent_type\n";
-    print "sigevent_description                       = $sigevent_description\n";
-    print "sigevent_email_to                          = $sigevent_email_to\n";
-    print "sigevent_clause                            = $sigevent_clause\n";
-    print "temp_dir                                   = $temp_dir\n";
-    print "msg2report                                 = $msg2report\n";
-    print "sigevent_data                              = $sigevent_data\n";
+    # print "sigevent_source                            = $sigevent_source\n";
+    # print "sigevent_type                              = $sigevent_type\n";
+    # print "sigevent_description                       = $sigevent_description\n";
+    # print "sigevent_email_to                          = $sigevent_email_to\n";
+    # print "sigevent_clause                            = $sigevent_clause\n";
+    # print "temp_dir                                   = $temp_dir\n";
+    # print "msg2report                                 = $msg2report\n";
+    # print "sigevent_data                              = $sigevent_data\n";
 
     $python_argument_strings = "-t \"$sigevent_type\" -d \"$sigevent_source:$sigevent_description\" -i \"$sigevent_data\"";
     $call_system_command_str = "$GHRSST_PYTHON_LIB_DIRECTORY/notify.py $python_argument_strings";
@@ -65,17 +65,17 @@ sub raise_sigevent {
     # Check for errors.
     #
     if ($? == -1) {
-        print "ghrsst_notify_operator: system $args[0] < $args[1] failed to execute: $?\n";
+        print "ghrsst_notify_operator - ERROR: system $args[0] < $args[1] failed to execute: $?\n";
         $o_status = 1;
     } elsif ($? == 256){
-        print "ghrsst_notify_operator: Cannot find file $args[1].\n";
+        print "ghrsst_notify_operator - ERROR: Cannot find file $args[1].\n";
         $o_status = 1;
     } elsif ($? == 0){
-        print "ghrsst_notify_operator: system $args[0] < $args[1] executed with: $?\n";
+        print "ghrsst_notify_operator - INFO: system $args[0] < $args[1] executed with: $?\n";
         print "ghrsst_notify_operator: Everything is OK.\n";
         $o_status = 0;
     } else {
-        print "ghrsst_notify_operator: system $args[0] < $args[1] executed with: $?\n";
+        print "ghrsst_notify_operator - ERROR: system $args[0] < $args[1] executed with: $?\n";
         $o_status = 1;
     }
     return ($o_status);

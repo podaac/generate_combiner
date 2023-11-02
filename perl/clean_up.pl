@@ -14,6 +14,7 @@ do "$GHRSST_PERL_LIB_DIRECTORY/mkdir_with_error_handling.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/file_move_with_error_handling.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/move_to_holding_tank_with_error_handling.pl";
 do "$GHRSST_PERL_LIB_DIRECTORY/raise_sigevent.pl";
+do "$GHRSST_PERL_LIB_DIRECTORY/write_final_log.pl";
 
 #------------------------------------------------------------------------------------------------------------------------
 sub clean_up {
@@ -62,7 +63,10 @@ sub clean_up {
         # Use the module File::Copy to do the move.
         if (-e $i_sst_filename) {
            move($i_sst_filename,$quarantine_directory);
-           log_this("ERROR",$g_routine_name,"FILE_MOVE_TO_QUARANTINE $i_sst_filename $quarantine_directory");
+           log_this("INFO",$g_routine_name,"FILE_MOVE_TO_QUARANTINE $i_sst_filename $quarantine_directory");
+           $q_file = basename($i_sst_filename);
+           log_this("INFO",$g_routine_name,"Quarantined: $q_file");
+           write_final_log("quarantined: $q_file");
         }
     }
 
@@ -88,7 +92,10 @@ sub clean_up {
             # Use the module File::Copy to do the move.
             if (-e $i_sst4_filename) {
                 move($i_sst4_filename,$quarantine_directory);
-                log_this("ERROR",$g_routine_name,"FILE_MOVE_TO_QUARANTINE $i_sst4_filename $quarantine_directory");
+                log_this("INFO",$g_routine_name,"FILE_MOVE_TO_QUARANTINE $i_sst4_filename $quarantine_directory");
+                $q_file = basename($i_sst4_filename);
+                log_this("INFO",$g_routine_name,"Quarantined: $q_file");
+                write_final_log("quarantined: $q_file");
             }
         }
     }
@@ -114,7 +121,10 @@ sub clean_up {
             # Use the module File::Copy to do the move.
             if (-e $i_oc_filename) {
                 move($i_oc_filename,$quarantine_directory);
-                log_this("ERROR",$g_routine_name,"FILE_MOVE_TO_QUARANTINE $i_oc_filename $quarantine_directory");
+                log_this("INFO",$g_routine_name,"FILE_MOVE_TO_QUARANTINE $i_oc_filename $quarantine_directory");
+                $q_file = basename($i_oc_filename);
+                log_this("INFO",$g_routine_name,"Quarantined: $q_file");
+                write_final_log("quarantined: $q_file");
             }
         }
     }
