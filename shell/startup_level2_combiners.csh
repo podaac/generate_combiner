@@ -120,7 +120,7 @@ echo "$module - INFO: Job index: $JOB_INDEX"
 echo "$module - INFO: JSON file: $json_file"
 echo "$module - INFO: Dataset: $dataset"
 echo "$module - INFO: Processing type: $processing_type"
-echo "execution_data: job_id: $AWS_BATCH_JOB_ID - job_index: $JOB_INDEX - json_file: $json_file - dataset: $dataset - processing_type: $processing_type" > $FINAL_LOG_MESSAGE
+echo "execution_data: dataset: $dataset - processing_type: $processing_type - job_id: $AWS_BATCH_JOB_ID - job_index: $JOB_INDEX - json_file: $json_file" > $FINAL_LOG_MESSAGE
 
 # Call the script to combine the files
 
