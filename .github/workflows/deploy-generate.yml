@@ -99,7 +99,7 @@ jobs:
 
 
       # Snyk Monitor for built docker containers
-      - name: Monitor Docker Vulnerabilities
+      - name: Run Snyk as a monitoring step for Docker Containers
         uses: snyk/actions/docker@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
@@ -108,7 +108,7 @@ jobs:
           command: monitor
 
       # Scan the docker container with Snyk
-      - name: Run Snyk to check Docker image for vulnerabilities
+      - name: Run Snyk as a blocking step for Docker Containers
         uses: snyk/actions/docker@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
