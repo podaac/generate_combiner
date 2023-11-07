@@ -97,20 +97,33 @@ jobs:
             --build-arg IDL_VERSION=$IDL_VERSION_ENV \
             -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} .
 
-      # Scan the docker container with Snyk
-      - name: Run Snyk to check Docker image for vulnerabilities
+
+      - name: Monitor Docker Vulnerabilities
         uses: snyk/actions/docker@master
-        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
-          args: --org=${{ secrets.SNYK_ORG_ID }} --project-name=${{ github.repository }} --severity-threshold=high --fail-on=all --sarif-file-output=snyk.sarif
+          command: monitor
 
-      - name: Upload Snyk report as sarif 📦
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: snyk.sarif
+
+
+
+
+      # Scan the docker container with Snyk
+      # - name: Run Snyk to check Docker image for vulnerabilities
+      #   uses: snyk/actions/docker@master
+      #   continue-on-error: true
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   with:
+      #     image: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+      #     args: --org=${{ secrets.SNYK_ORG_ID }} --project-name=${{ github.repository }} --severity-threshold=high --fail-on=all --sarif-file-output=snyk.sarif
+
+      # - name: Upload Snyk report as sarif 📦
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: snyk.sarif
 
       # Breakpoint for Snyk Scanning
       - name: Breakpoint
