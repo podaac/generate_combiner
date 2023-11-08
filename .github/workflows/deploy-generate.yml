@@ -91,7 +91,6 @@ jobs:
       - name: Create AWS ECR Repository
         run: deploy/deploy-ecr.sh $REGISTRY $REPOSITORY
 
-
       # Build Docker Image to prep for scanning
       - name: Build and Tag Docker image
         env:
@@ -109,7 +108,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
-          args: --org=${{ secrets.SNYK_ORG_ID }} --project-name=${{ github.repository }} --severity-threshold=high --fail-on=all
+          command: monitor
 
       # Push AWS Batch job container
       - name: Push to AWS ECR
