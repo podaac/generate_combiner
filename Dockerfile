@@ -21,7 +21,8 @@ RUN /bin/mkdir /root/idl_install \
     && /bin/cp /app/idl/install/lic_server.dat /usr/local/idl/license/ \
     && /bin/ln -s /usr/local/idl/$IDL_VERSION/bin/idl /usr/local/bin \
     && /bin/rm -rf /app/idl/install/$IDL_INSTALLER \
-    && /bin/rm -rf /root/idl_install
+    && /bin/rm -rf /root/idl_install \
+    && /bin/rm -rf /usr/local/idl/$IDL_VERSION/bin/bin.linux.x86_64/idlde/plugins/org.eclipse.jgit*
 
 # Stage 2 - Local Perl Library
 FROM stage2 as stage3
