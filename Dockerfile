@@ -37,7 +37,7 @@ RUN /usr/bin/yes | /usr/local/bin/cpan App::cpanminus \
 
 # Stage 3 - Install Python
 FROM stage3 as stage4
-RUN apt update && apt install -y software-properties-common \
+RUN apt update && apt install -y software-properties-common python3-launchpadlib \
     && add-apt-repository ppa:deadsnakes/ppa \
     && apt install -y python3 python3-pip python3-venv \
     && /usr/bin/python3 -m venv /app/env \
