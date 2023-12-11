@@ -91,16 +91,6 @@ jobs:
       - name: Create AWS ECR Repository
         run: deploy/deploy-ecr.sh $REGISTRY $REPOSITORY
 
-      # Build Docker Image to prep for scanning
-      - name: Build and Tag Docker image
-        env:
-          IDL_INSTALLER_ENV: ${{ secrets.IDL_INSTALLER }}
-          IDL_VERSION_ENV: ${{ secrets.IDL_VERSION }}
-        run: |
-          docker build --build-arg IDL_INSTALLER=$IDL_INSTALLER_ENV \
-            --build-arg IDL_VERSION=$IDL_VERSION_ENV \
-            -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} .
-
       # Monitor the docker container with Snyk
       - name: Run Snyk for Docker Containers
         uses: snyk/actions/docker@master
@@ -118,6 +108,16 @@ jobs:
         with:
           image: ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
           args: --org=${{ secrets.SNYK_ORG_ID }} --project-name=${{ github.repository }} --severity-threshold=high --fail-on=all
+
+      # Build Docker Image to prep for scanning
+      - name: Build and Tag Docker image
+        env:
+          IDL_INSTALLER_ENV: ${{ secrets.IDL_INSTALLER }}
+          IDL_VERSION_ENV: ${{ secrets.IDL_VERSION }}
+        run: |
+          docker build --build-arg IDL_INSTALLER=$IDL_INSTALLER_ENV \
+            --build-arg IDL_VERSION=$IDL_VERSION_ENV \
+            -t ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} .
 
       # Push AWS Batch job container
       - name: Push to AWS ECR
