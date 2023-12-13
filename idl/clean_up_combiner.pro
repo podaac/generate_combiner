@@ -60,7 +60,7 @@ endif
 
 if (FILE_TEST(i_output_filename)) then begin
     now_is = SYSTIME();
-    print, now_is + ' INFO [' + i_routine_name + '] FILE_DELETE ' + i_output_filename;
+    print, i_routine_name + ' - INFO: FILE_DELETE ' + i_output_filename;
     FILE_DELETE, i_output_filename, /QUIET;
     CATCH, /CANCEL
 endif

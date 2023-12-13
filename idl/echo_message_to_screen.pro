@@ -24,11 +24,9 @@ if (i_msg_type EQ 'error')   then MSG_TYPE = 'ERROR';
 if (i_msg_type EQ 'warning') then MSG_TYPE = 'WARN';
 if (i_msg_type EQ 'debug')   then MSG_TYPE = 'DEBUG';
 
-now_is = SYSTIME();
-
 ; Print the message with the current time, message type, routine name and the message itself.
 
-print, now_is + ' ' + MSG_TYPE +  ' ' + '[' + i_routine_name + '] ' + i_msg_string;
+print, i_routine_name + ' - ' + MSG_TYPE + ': ' + i_msg_string;
 
 RETURN, 1;
 END
