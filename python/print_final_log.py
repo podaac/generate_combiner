@@ -36,7 +36,7 @@ def print_final_log():
         if "sst_wait" in line: wait.append(line.split("sst_wait: ")[-1])
         if "totals" in line: totals += line.split("totals: ")[-1]
     
-    final_log_message = "- "
+    final_log_message = "final_log: "
     if execution_data: final_log_message += f"{execution_data} - "
     if totals: final_log_message += f"{totals} - "
     if len(processed) > 0: final_log_message += f"processed: {', '.join(processed)} - "
