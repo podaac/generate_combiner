@@ -2184,5 +2184,5 @@ sub log_this {
 
     # print $now_is . " " . $i_log_type . " [" . $i_function_name . "] " . $i_log_message . "\n";
 
-    print $i_function_name . " - " . $i_log_type . ": " . $i_log_message . "\n";
+    print $i_function_name . " - " . $i_log_type . " : " . $i_log_message . "\n";
 }
