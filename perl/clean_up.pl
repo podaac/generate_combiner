@@ -65,7 +65,7 @@ sub clean_up {
            move($i_sst_filename,$quarantine_directory);
            log_this("INFO",$g_routine_name,"FILE_MOVE_TO_QUARANTINE $i_sst_filename $quarantine_directory");
            $q_file = basename($i_sst_filename);
-           log_this("INFO",$g_routine_name,"Quarantined: $q_file");
+           log_this("INFO ",$g_routine_name,"Quarantined: $q_file");
            write_final_log("quarantined: $q_file");
         }
     }
@@ -94,7 +94,7 @@ sub clean_up {
                 move($i_sst4_filename,$quarantine_directory);
                 log_this("INFO",$g_routine_name,"FILE_MOVE_TO_QUARANTINE $i_sst4_filename $quarantine_directory");
                 $q_file = basename($i_sst4_filename);
-                log_this("INFO",$g_routine_name,"Quarantined: $q_file");
+                log_this("INFO ",$g_routine_name,"Quarantined: $q_file");
                 write_final_log("quarantined: $q_file");
             }
         }
@@ -123,7 +123,7 @@ sub clean_up {
                 move($i_oc_filename,$quarantine_directory);
                 log_this("INFO",$g_routine_name,"FILE_MOVE_TO_QUARANTINE $i_oc_filename $quarantine_directory");
                 $q_file = basename($i_oc_filename);
-                log_this("INFO",$g_routine_name,"Quarantined: $q_file");
+                log_this("INFO ",$g_routine_name,"Quarantined: $q_file");
                 write_final_log("quarantined: $q_file");
             }
         }

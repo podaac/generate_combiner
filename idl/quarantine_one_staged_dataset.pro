@@ -35,14 +35,14 @@ endif
 if (FILE_TEST(i_data_filename)) then begin
     print, 'quarantine_one_staged_dataset - INFO: ' + 'FILE_MOVE_TO_QUARANTINE ' + i_data_filename + ' ' + destination_of_quarantine;
     FILE_COPY, i_data_filename, destination_of_quarantine, /OVERWRITE;
-    print, "quarantine_one_staged_dataset - INFO: Quarantined: " + FILE_BASENAME(i_data_filename);
+    print, "quarantine_one_staged_dataset - INFO : Quarantined: " + FILE_BASENAME(i_data_filename);
     write_final_log, "quarantined: " + FILE_BASENAME(i_data_filename);
 endif
 
 if (FILE_TEST(i_data_filename + ".bz2")) then begin
     print, 'quarantine_one_staged_dataset - INFO: ' + 'FILE_MOVE_TO_QUARANTINE ' + i_data_filename + '.bz2' + ' ' + destination_of_quarantine;
     FILE_COPY, i_data_filename + '.bz2' , destination_of_quarantine, /OVERWRITE;
-    print, "quarantine_one_staged_dataset - INFO: Quarantined: " + FILE_BASENAME(i_data_filename);
+    print, "quarantine_one_staged_dataset - INFO : Quarantined: " + FILE_BASENAME(i_data_filename);
     write_final_log, "quarantined: " + FILE_BASENAME(i_data_filename);
 endif
 

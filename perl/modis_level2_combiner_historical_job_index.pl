@@ -910,13 +910,13 @@ while (($index_to_sst_sst4_list < $num_sst_sst4_files) and (($num_combined_files
         # Log processed and created files
         if ($o_file_created_successfully_flag == 1) {
             $processed_sst = basename($i_sst_filename);
-            log_this("INFO", $g_routine_name, "Processed: $processed_sst");
+            log_this("INFO ", $g_routine_name, "Processed: $processed_sst");
             write_final_log("processed: $processed_sst");
             $processed_sst4 = basename($i_sst4_filename);
-            log_this("INFO", $g_routine_name, "Processed: $processed_sst4") if($i_sst4_filename ne "DUMMY_SST4_FILENAME");
+            log_this("INFO ", $g_routine_name, "Processed: $processed_sst4") if($i_sst4_filename ne "DUMMY_SST4_FILENAME");
             write_final_log("processed: $processed_sst4") if($i_sst4_filename ne "DUMMY_SST4_FILENAME");
             $processed_oc = basename($i_oc_filename);
-            log_this("INFO", $g_routine_name, "Processed: $processed_oc") if ($i_oc_filename ne "DUMMY_OC_FILENAME");
+            log_this("INFO ", $g_routine_name, "Processed: $processed_oc") if ($i_oc_filename ne "DUMMY_OC_FILENAME");
             write_final_log("processed: $processed_oc") if($i_oc_filename ne "DUMMY_OC_FILENAME");
         }
 
@@ -2456,6 +2456,6 @@ sub log_this {
 
     # print $now_is . " " . $i_log_type . " [" . $i_function_name . "] " . $i_log_message . "\n";
 
-    print $i_function_name . " - " . $i_log_type . ": " . $i_log_message . "\n";
+    print $i_function_name . " - " . $i_log_type . " : " . $i_log_message . "\n";
 
 }
