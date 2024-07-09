@@ -153,12 +153,17 @@ for i = 0, 1 do begin
             r_status = get_netcdf_dimension(i_sst_filename,$
                                             'pixel_control_points',$
                                              r_long_attribute_value);
+            if (r_status NE SUCCESS)then begin
+                r_status = get_netcdf_dimension(i_sst_filename,$
+                                            'pixels_per_line',$
+                                             r_long_attribute_value);
+            endif
         endif
     end
 
     if (r_status NE SUCCESS) then begin
         msg_type = "error";
-        msg = "Cannot read global attribute " + long_attributes_names[i] + " from file " + i_sst_filename;
+        msg = "[DEBUGGING] Cannot read global attribute " + long_attributes_names[i] + " from file " + i_sst_filename;
         donotcare = echo_message_to_screen(routine_name,msg,msg_type);
         donotcare = error_log_writer(routine_name,msg);
         ; Must return immediately.
