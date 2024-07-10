@@ -75,7 +75,7 @@ i_data = "";
 ; Get the DEBUG_MODE if it is set.
 
 debug_module = 'combine_netcdf_sst_and_sst4_files_to_netcdf:';
-debug_mode = 0
+debug_mode = 1
 
 if (STRUPCASE(GETENV('GHRSST_MODIS_L2_COMBINER_DEBUG_MODE')) EQ 'TRUE') then begin
     debug_mode = 1;
