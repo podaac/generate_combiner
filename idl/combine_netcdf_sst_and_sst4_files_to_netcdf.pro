@@ -75,7 +75,7 @@ i_data = "";
 ; Get the DEBUG_MODE if it is set.
 
 debug_module = 'combine_netcdf_sst_and_sst4_files_to_netcdf:';
-debug_mode = 1
+debug_mode = 0
 
 if (STRUPCASE(GETENV('GHRSST_MODIS_L2_COMBINER_DEBUG_MODE')) EQ 'TRUE') then begin
     debug_mode = 1;
@@ -163,7 +163,7 @@ for i = 0, 1 do begin
 
     if (r_status NE SUCCESS) then begin
         msg_type = "error";
-        msg = "[DEBUGGING] Cannot read global attribute " + long_attributes_names[i] + " from file " + i_sst_filename;
+        msg = "Cannot read global attribute " + long_attributes_names[i] + " from file " + i_sst_filename;
         donotcare = echo_message_to_screen(routine_name,msg,msg_type);
         donotcare = error_log_writer(routine_name,msg);
         ; Must return immediately.
@@ -363,7 +363,7 @@ for i = 0, (size(float_attributes_values,/N_ELEMENTS) - 1) do begin
 
     if (r_status NE SUCCESS) then begin
         msg_type = "error";
-        msg = "[DEBUGGING 2] Cannot read global attribute " + float_attributes_names[i] + " from file " + i_sst_filename;
+        msg = "Cannot read global attribute " + float_attributes_names[i] + " from file " + i_sst_filename;
         donotcare = echo_message_to_screen(routine_name,msg,msg_type);
         donotcare = error_log_writer(routine_name,msg);
         ; Must return immediately.
@@ -474,7 +474,7 @@ if (GETENV('GHRSST_MODIS_COMBINER_FAILED_TIME_COVERAGE_START_ATTRIBUTE_READ_TEST
 
 if (r_status NE SUCCESS) then begin
     msg_type = "error";
-    msg = "[DEBUGGING 3] Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
+    msg = "Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
 
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
@@ -581,7 +581,7 @@ if (GETENV('GHRSST_MODIS_COMBINER_FAILED_TIME_COVERAGE_END_ATTRIBUTE_READ_TEST')
 
 if (r_status NE SUCCESS) then begin
     msg_type = "error";
-    msg = "[DEBUGGING 4] Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
+    msg = "Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
 
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
@@ -734,7 +734,7 @@ if (GETENV('GHRSST_MODIS_COMBINER_FAILED_INSTRUMENT_ATTRIBUTE_READ_TEST') EQ 'tr
 
 if (r_status NE SUCCESS) then begin
     msg_type = "error";
-    msg = "[DEBUGGING 5] Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
+    msg = "Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
 
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
@@ -767,7 +767,7 @@ if (GETENV('GHRSST_MODIS_COMBINER_FAILED_START_DIRECTION_ATTRIBUTE_READ_TEST') E
 
 if (r_status NE SUCCESS) then begin
     msg_type = "error";
-    msg = "[DEBUGGING 6] Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
+    msg = "Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
 
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
@@ -801,7 +801,7 @@ if (GETENV('GHRSST_MODIS_COMBINER_FAILED_END_DIRECTION_ATTRIBUTE_READ_TEST') EQ 
 
 if (r_status NE SUCCESS) then begin
     msg_type = "error";
-    msg = "[DEBUGGING 7] Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
+    msg = "Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
 
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
@@ -836,7 +836,7 @@ if (GETENV('GHRSST_MODIS_COMBINER_FAILED_DAY_NIGHT_FLAG_ATTRIBUTE_READ_TEST') EQ
 
 if (r_status NE SUCCESS) then begin
     msg_type = "error";
-    msg = "[DEBUGGING 8] Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
+    msg = "Cannot read global attribute " + i_attribute_name + " from file " + i_sst_filename;
 
     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
     donotcare = error_log_writer(routine_name,msg);
