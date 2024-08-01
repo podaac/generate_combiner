@@ -23,6 +23,51 @@ To compile IDL files:
 6. Inside the IDL command prompt, execute: `SAVE, /ROUTINES, FILENAME='{file name}.sav'`
     1. Example: `SAVE, /ROUTINES, FILENAME='combine_netcdf_sst_and_sst3_files_to_netcdf.sav'`
 
+
+### compile ghrsst_notify_operator.sav
+
+```bash
+.FULL_RESET_SESSION 
+.COMPILE ghrsst_notify_operator
+RESOLVE_ALL
+SAVE, /ROUTINES, FILENAME='ghrsst_notify_operator.sav'
+```
+
+### compile is_netcdf_granule_night_or_day.sav
+
+```bash
+.FULL_RESET_SESSION 
+.COMPILE ghrsst_base_error_logger
+.COMPILE ghrsst_error_logger
+.COMPILE is_netcdf_granule_night_or_day
+RESOLVE_ALL
+SAVE, /ROUTINES, FILENAME='is_netcdf_granule_night_or_day.sav'
+```
+
+### compile combine_netcdf_sst_and_sst4_files_to_netcdf.sav
+
+```bash
+.FULL_RESET_SESSION 
+.COMPILE ghrsst_base_error_logger
+.COMPILE ghrsst_error_logger
+.COMPILE wrapper_ghrsst_notify_operator 
+.COMPILE combine_netcdf_sst_and_sst4_files_to_netcdf
+RESOLVE_ALL
+SAVE, /ROUTINES, FILENAME='combine_netcdf_sst_and_sst4_files_to_netcdf.sav'
+```
+
+### compile combine_netcdf_sst_and_sst3_files_to_netcdf.sav
+
+```bash
+.FULL_RESET_SESSION 
+.COMPILE ghrsst_base_error_logger
+.COMPILE ghrsst_error_logger
+.COMPILE wrapper_ghrsst_notify_operator 
+.COMPILE combine_netcdf_sst_and_sst3_files_to_netcdf
+RESOLVE_ALL
+SAVE, /ROUTINES, FILENAME='combine_netcdf_sst_and_sst3_files_to_netcdf.sav'
+```
+
 ## build command
 
 `docker build --build-arg IDL_INSTALLER=idlxxx-linux.tar.gz --build-arg IDL_VERSION=idlxx --tag combiner:0.1 .`

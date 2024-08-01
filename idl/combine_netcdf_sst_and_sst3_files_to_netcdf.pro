@@ -152,6 +152,11 @@ for i = 0, 1 do begin
             r_status = get_netcdf_dimension(i_sst_filename,$
                                             'pixel_control_points',$
                                              r_long_attribute_value);
+            if (r_status NE SUCCESS)then begin
+                r_status = get_netcdf_dimension(i_sst_filename,$
+                                            'pixels_per_line',$
+                                                r_long_attribute_value);
+            endif
         endif
     end
 
@@ -1103,165 +1108,165 @@ if (EXECUTE_THIS_BLOCK EQ 1) then begin
 endif
 ; END_BLOCK_0
 
-;--------------------------------------------------------------------------------
-; Read cntl_pt_cols & cntl_pt_rows variables from NetCDF file and write to NetCDF file.
-;--------------------------------------------------------------------------------
+; ;--------------------------------------------------------------------------------
+; ; Read cntl_pt_cols & cntl_pt_rows variables from NetCDF file and write to NetCDF file.
+; ;--------------------------------------------------------------------------------
 
-i_variable_short_name = 'cntl_pt_cols';
+; i_variable_short_name = 'cntl_pt_cols';
 
-r_status = read_netcdf_one_variable(i_sst_filename,$
-                                    i_variable_short_name,$
-                                    o_data_variable_structure);
+; r_status = read_netcdf_one_variable(i_sst_filename,$
+;                                     i_variable_short_name,$
+;                                     o_data_variable_structure);
 
-if (GETENV('GHRSST_MODIS_COMBINER_FAILED_CONTROL_POINT_COLS_VARIABLE_READ_TEST') EQ 'true') then r_status = FAILURE;
+; if (GETENV('GHRSST_MODIS_COMBINER_FAILED_CONTROL_POINT_COLS_VARIABLE_READ_TEST') EQ 'true') then r_status = FAILURE;
 
-if (r_status NE SUCCESS) then begin
-    msg_type = "error";
-    msg = "Cannot read variable " + i_variable_short_name + " from file " + i_sst_filename;
-    donotcare = echo_message_to_screen(routine_name,msg,msg_type);
-    donotcare = error_log_writer(routine_name,msg);
-    donotcare = clean_up_combiner(routine_name,i_out_filename);
-    ; Must return immediately.
-    exit, status=39    ; Indicate an error that should be quarantined
-endif
+; if (r_status NE SUCCESS) then begin
+;     msg_type = "error";
+;     msg = "Cannot read variable " + i_variable_short_name + " from file " + i_sst_filename;
+;     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
+;     donotcare = error_log_writer(routine_name,msg);
+;     donotcare = clean_up_combiner(routine_name,i_out_filename);
+;     ; Must return immediately.
+;     exit, status=39    ; Indicate an error that should be quarantined
+; endif
 
-r_status = find_netcdf_variable_attribute_info('scale_factor',o_data_variable_structure.s_attributes_array,r_slope);
-r_status = find_netcdf_variable_attribute_info('add_offset',o_data_variable_structure.s_attributes_array,r_intercept);
-r_status = find_netcdf_variable_attribute_info('units',o_data_variable_structure.s_attributes_array,r_units);
-r_status = find_netcdf_variable_attribute_info('long_name',o_data_variable_structure.s_attributes_array,r_long_name);
-r_status = find_netcdf_variable_attribute_info('_FillValue',o_data_variable_structure.s_attributes_array,r_fill_value);
-r_status = find_netcdf_variable_attribute_info('valid_min',o_data_variable_structure.s_attributes_array,r_valid_min);
-r_status = find_netcdf_variable_attribute_info('valid_max',o_data_variable_structure.s_attributes_array,r_valid_max);
-r_dataset_array = *(o_data_variable_structure.s_variable_array);
+; r_status = find_netcdf_variable_attribute_info('scale_factor',o_data_variable_structure.s_attributes_array,r_slope);
+; r_status = find_netcdf_variable_attribute_info('add_offset',o_data_variable_structure.s_attributes_array,r_intercept);
+; r_status = find_netcdf_variable_attribute_info('units',o_data_variable_structure.s_attributes_array,r_units);
+; r_status = find_netcdf_variable_attribute_info('long_name',o_data_variable_structure.s_attributes_array,r_long_name);
+; r_status = find_netcdf_variable_attribute_info('_FillValue',o_data_variable_structure.s_attributes_array,r_fill_value);
+; r_status = find_netcdf_variable_attribute_info('valid_min',o_data_variable_structure.s_attributes_array,r_valid_min);
+; r_status = find_netcdf_variable_attribute_info('valid_max',o_data_variable_structure.s_attributes_array,r_valid_max);
+; r_dataset_array = *(o_data_variable_structure.s_variable_array);
 
-PTR_FREE,o_data_variable_structure.s_variable_array;
-data_type_as_int = SIZE(r_dataset_array,/TYPE);
-r_data_type = convert_int_type_to_char_type(data_type_as_int);
+; PTR_FREE,o_data_variable_structure.s_variable_array;
+; data_type_as_int = SIZE(r_dataset_array,/TYPE);
+; r_data_type = convert_int_type_to_char_type(data_type_as_int);
 
-; If the unit is not provided, we must fill it with some value otherwise IDL will fail. 
-if (r_units EQ '') then begin
-    r_units = 'none';
-endif
+; ; If the unit is not provided, we must fill it with some value otherwise IDL will fail. 
+; if (r_units EQ '') then begin
+;     r_units = 'none';
+; endif
 
-; Validate the variable dimensions and type.
+; ; Validate the variable dimensions and type.
 
-o_variable_valid_flag = validate_variable_dimensions($
-                            i_sst_filename,$
-                            i_variable_short_name,$
-                            num_lons,$       ; Same as Number_of_Scan_Lines = 2030
-                            num_lats,$       ; Same as pixel_control_points = 1354
-                            r_dataset_array);
+; o_variable_valid_flag = validate_variable_dimensions($
+;                             i_sst_filename,$
+;                             i_variable_short_name,$
+;                             num_lons,$       ; Same as Number_of_Scan_Lines = 2030
+;                             num_lats,$       ; Same as pixel_control_points = 1354
+;                             r_dataset_array);
 
-; From this point on, if there is an error, the created output file will be removed so as not to allow it to be process by the MODIS L2P Processing.
-if (o_variable_valid_flag NE 1) then begin
-    donotcare = clean_up_combiner(routine_name,i_out_filename);
-    ; Must return immediately.
-    exit, status=39    ; Indicate an error that should be quarantined
-endif
+; ; From this point on, if there is an error, the created output file will be removed so as not to allow it to be process by the MODIS L2P Processing.
+; if (o_variable_valid_flag NE 1) then begin
+;     donotcare = clean_up_combiner(routine_name,i_out_filename);
+;     ; Must return immediately.
+;     exit, status=39    ; Indicate an error that should be quarantined
+; endif
 
-if (debug_mode) then begin
-    print, routine_name,'i_sst_filename        ', i_sst_filename;
-    print, routine_name,'i_variable_short_name ', i_variable_short_name;
-    print, routine_name,'r_long_name           ', r_long_name;
-    print, routine_name,'r_units               ', r_units;
-    print, routine_name,'r_data_type           ', r_data_type;
-    print, routine_name,'r_fill_value          ', r_fill_value;
-    print, routine_name,'r_valid_min           ', r_valid_min;
-    print, routine_name,'r_valid_max           ', r_valid_max;
-endif
+; if (debug_mode) then begin
+;     print, routine_name,'i_sst_filename        ', i_sst_filename;
+;     print, routine_name,'i_variable_short_name ', i_variable_short_name;
+;     print, routine_name,'r_long_name           ', r_long_name;
+;     print, routine_name,'r_units               ', r_units;
+;     print, routine_name,'r_data_type           ', r_data_type;
+;     print, routine_name,'r_fill_value          ', r_fill_value;
+;     print, routine_name,'r_valid_min           ', r_valid_min;
+;     print, routine_name,'r_valid_max           ', r_valid_max;
+; endif
 
-r_status = write_control_points_variable_to_netcdf(i_out_filename,i_variable_short_name,$
-                                         r_dataset_array, r_long_name,$
-                                         r_units,r_data_type,r_slope,r_intercept,$
-                                         r_fill_value,r_valid_min,r_valid_max);
+; r_status = write_control_points_variable_to_netcdf(i_out_filename,i_variable_short_name,$
+;                                          r_dataset_array, r_long_name,$
+;                                          r_units,r_data_type,r_slope,r_intercept,$
+;                                          r_fill_value,r_valid_min,r_valid_max);
 
-if (GETENV('GHRSST_MODIS_COMBINER_FAILED_CONTROL_POINT_COLS_VARIABLE_WRITE_TEST') EQ 'true') then r_status = FAILURE;
+; if (GETENV('GHRSST_MODIS_COMBINER_FAILED_CONTROL_POINT_COLS_VARIABLE_WRITE_TEST') EQ 'true') then r_status = FAILURE;
 
-if (r_status NE SUCCESS) then begin
-    msg_type = "error";
-    msg = "Cannot write variable " + i_variable_short_name + " to file " + i_out_filename;
-    donotcare = echo_message_to_screen(routine_name,msg,msg_type);
-    donotcare = error_log_writer(routine_name,msg);
-    donotcare = clean_up_combiner(routine_name,i_out_filename);
-    ; Must return immediately.
-    exit, status=39    ; Indicate an error that should be quarantined
-endif
+; if (r_status NE SUCCESS) then begin
+;     msg_type = "error";
+;     msg = "Cannot write variable " + i_variable_short_name + " to file " + i_out_filename;
+;     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
+;     donotcare = error_log_writer(routine_name,msg);
+;     donotcare = clean_up_combiner(routine_name,i_out_filename);
+;     ; Must return immediately.
+;     exit, status=39    ; Indicate an error that should be quarantined
+; endif
 
-i_variable_short_name = 'cntl_pt_rows';
+; i_variable_short_name = 'cntl_pt_rows';
 
-r_status = read_netcdf_one_variable(i_sst_filename,$
-                                    i_variable_short_name,$
-                                    o_data_variable_structure);
+; r_status = read_netcdf_one_variable(i_sst_filename,$
+;                                     i_variable_short_name,$
+;                                     o_data_variable_structure);
 
-if (GETENV('GHRSST_MODIS_COMBINER_FAILED_CONTROL_POINT_ROWS_VARIABLE_READ_TEST') EQ 'true') then r_status = FAILURE;
+; if (GETENV('GHRSST_MODIS_COMBINER_FAILED_CONTROL_POINT_ROWS_VARIABLE_READ_TEST') EQ 'true') then r_status = FAILURE;
 
-if (r_status NE SUCCESS) then begin
-    msg_type = "error";
-    msg = "Cannot read variable " + i_variable_short_name + " from file " + i_sst_filename;
-    donotcare = echo_message_to_screen(routine_name,msg,msg_type);
-    donotcare = error_log_writer(routine_name,msg);
-    donotcare = clean_up_combiner(routine_name,i_out_filename);
-    ; Must return immediately.
-    exit, status=39    ; Indicate an error that should be quarantined
-endif
+; if (r_status NE SUCCESS) then begin
+;     msg_type = "error";
+;     msg = "Cannot read variable " + i_variable_short_name + " from file " + i_sst_filename;
+;     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
+;     donotcare = error_log_writer(routine_name,msg);
+;     donotcare = clean_up_combiner(routine_name,i_out_filename);
+;     ; Must return immediately.
+;     exit, status=39    ; Indicate an error that should be quarantined
+; endif
 
-r_status = find_netcdf_variable_attribute_info('scale_factor',o_data_variable_structure.s_attributes_array,r_slope);
-r_status = find_netcdf_variable_attribute_info('add_offset',o_data_variable_structure.s_attributes_array,r_intercept);
-r_status = find_netcdf_variable_attribute_info('units',o_data_variable_structure.s_attributes_array,r_units);
-r_status = find_netcdf_variable_attribute_info('long_name',o_data_variable_structure.s_attributes_array,r_long_name);
-r_dataset_array = *(o_data_variable_structure.s_variable_array);
-PTR_FREE,o_data_variable_structure.s_variable_array;
+; r_status = find_netcdf_variable_attribute_info('scale_factor',o_data_variable_structure.s_attributes_array,r_slope);
+; r_status = find_netcdf_variable_attribute_info('add_offset',o_data_variable_structure.s_attributes_array,r_intercept);
+; r_status = find_netcdf_variable_attribute_info('units',o_data_variable_structure.s_attributes_array,r_units);
+; r_status = find_netcdf_variable_attribute_info('long_name',o_data_variable_structure.s_attributes_array,r_long_name);
+; r_dataset_array = *(o_data_variable_structure.s_variable_array);
+; PTR_FREE,o_data_variable_structure.s_variable_array;
 
-data_type_as_int = SIZE(r_dataset_array,/TYPE);
-r_data_type = convert_int_type_to_char_type(data_type_as_int);
+; data_type_as_int = SIZE(r_dataset_array,/TYPE);
+; r_data_type = convert_int_type_to_char_type(data_type_as_int);
 
-; If the unit is not provided, we must fill it with some value otherwise IDL will fail. 
-if (r_units EQ '') then begin
-    r_units = 'none';
-endif
+; ; If the unit is not provided, we must fill it with some value otherwise IDL will fail. 
+; if (r_units EQ '') then begin
+;     r_units = 'none';
+; endif
 
-; Validate the variable dimensions and type.
+; ; Validate the variable dimensions and type.
 
-o_variable_valid_flag = validate_variable_dimensions($
-                            i_sst_filename,$
-                            i_variable_short_name,$
-                            num_lons,$       ; Same as Number_of_Scan_Lines = 2030
-                            num_lats,$       ; Same as pixel_control_points = 1354
-                            r_dataset_array);
+; o_variable_valid_flag = validate_variable_dimensions($
+;                             i_sst_filename,$
+;                             i_variable_short_name,$
+;                             num_lons,$       ; Same as Number_of_Scan_Lines = 2030
+;                             num_lats,$       ; Same as pixel_control_points = 1354
+;                             r_dataset_array);
 
-if (o_variable_valid_flag NE 1) then begin
-    donotcare = clean_up_combiner(routine_name,i_out_filename);
-    ; Must return immediately.
-    exit, status=39    ; Indicate an error that should be quarantined
-endif
+; if (o_variable_valid_flag NE 1) then begin
+;     donotcare = clean_up_combiner(routine_name,i_out_filename);
+;     ; Must return immediately.
+;     exit, status=39    ; Indicate an error that should be quarantined
+; endif
 
-if (debug_mode) then begin
-    print, routine_name,'i_sst_filename        ', i_sst_filename;
-    print, routine_name,'i_variable_short_name ', i_variable_short_name;
-    print, routine_name,'r_long_name           ', r_long_name;
-    print, routine_name,'r_units               ', r_units;
-    print, routine_name,'r_data_type           ', r_data_type;
-    print, routine_name,'r_fill_value          ', r_fill_value;
-    print, routine_name,'r_valid_min           ', r_valid_min;
-    print, routine_name,'r_valid_max           ', r_valid_max;
-endif
+; if (debug_mode) then begin
+;     print, routine_name,'i_sst_filename        ', i_sst_filename;
+;     print, routine_name,'i_variable_short_name ', i_variable_short_name;
+;     print, routine_name,'r_long_name           ', r_long_name;
+;     print, routine_name,'r_units               ', r_units;
+;     print, routine_name,'r_data_type           ', r_data_type;
+;     print, routine_name,'r_fill_value          ', r_fill_value;
+;     print, routine_name,'r_valid_min           ', r_valid_min;
+;     print, routine_name,'r_valid_max           ', r_valid_max;
+; endif
 
-r_status = write_control_points_variable_to_netcdf(i_out_filename,i_variable_short_name,$
-                                         r_dataset_array, r_long_name,$
-                                         r_units,r_data_type,r_slope,r_intercept,$
-                                         r_fill_value,r_valid_min,r_valid_max);
+; r_status = write_control_points_variable_to_netcdf(i_out_filename,i_variable_short_name,$
+;                                          r_dataset_array, r_long_name,$
+;                                          r_units,r_data_type,r_slope,r_intercept,$
+;                                          r_fill_value,r_valid_min,r_valid_max);
 
-if (GETENV('GHRSST_MODIS_COMBINER_FAILED_CONTROL_POINT_ROWS_VARIABLE_WRITE_TEST') EQ 'true') then r_status = FAILURE;
+; if (GETENV('GHRSST_MODIS_COMBINER_FAILED_CONTROL_POINT_ROWS_VARIABLE_WRITE_TEST') EQ 'true') then r_status = FAILURE;
 
-if (r_status NE SUCCESS) then begin
-    msg_type = "error";
-    msg = "Cannot write variable " + i_variable_short_name + " to file " + i_out_filename;
-    donotcare = echo_message_to_screen(routine_name,msg,msg_type);
-    donotcare = error_log_writer(routine_name,msg);
-    donotcare = clean_up_combiner(routine_name,i_out_filename);
-    ; Must return immediately.
-    exit, status=39    ; Indicate an error that should be quarantined
-endif
+; if (r_status NE SUCCESS) then begin
+;     msg_type = "error";
+;     msg = "Cannot write variable " + i_variable_short_name + " to file " + i_out_filename;
+;     donotcare = echo_message_to_screen(routine_name,msg,msg_type);
+;     donotcare = error_log_writer(routine_name,msg);
+;     donotcare = clean_up_combiner(routine_name,i_out_filename);
+;     ; Must return immediately.
+;     exit, status=39    ; Indicate an error that should be quarantined
+; endif
 
 i_variable_short_name = 'l2_flags';
 
