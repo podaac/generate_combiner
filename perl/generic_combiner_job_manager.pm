@@ -29,6 +29,7 @@ sub setup_night_file_lookup_table {
     $m_night_file_lookup_table{'MODIS_A'} = 'SST4';
     $m_night_file_lookup_table{'MODIS_T'} = 'SST4';
     $m_night_file_lookup_table{'VIIRS'  } = 'SST3';
+    $m_night_file_lookup_table{'JPSS1'  } = 'SST3';
 }
 
 #------------------------------------------------------------------------------------------------
@@ -43,6 +44,7 @@ sub setup_idl_combiner_program_name {
     $m_idl_combiner_program_name{'MODIS_A'} = 'combine_netcdf_sst_and_sst4_files_to_netcdf.sav';
     $m_idl_combiner_program_name{'MODIS_T'} = 'combine_netcdf_sst_and_sst4_files_to_netcdf.sav';
     $m_idl_combiner_program_name{'VIIRS'}   = 'combine_netcdf_sst_and_sst3_files_to_netcdf.sav';
+    $m_idl_combiner_program_name{'JPSS1'}   = 'combine_netcdf_sst_and_sst3_files_to_netcdf.sav';
 }
 
 #------------------------------------------------------------------------------------------------
@@ -57,6 +59,7 @@ sub setup_name_extension_lookup_table {
     $m_name_extension_lookup_table{'MODIS_A'} = "LAC";
     $m_name_extension_lookup_table{'MODIS_T'} = "LAC";
     $m_name_extension_lookup_table{'VIIRS'  } = "SNPP";
+    $m_name_extension_lookup_table{'JPSS1'  } = "JPSS1";
 }
 
 #------------------------------------------------------------------------------------------------
@@ -78,6 +81,8 @@ sub setup_crawler_info_lookup_table {
    $m_crawler_info_lookup_table{'TERRA_REFINED'}    = "T";
    $m_crawler_info_lookup_table{'VIIRS_QUICKLOOK'}  = "V";
    $m_crawler_info_lookup_table{'VIIRS_REFINED'}    = "V";
+   $m_crawler_info_lookup_table{'JPSS1_QUICKLOOK'}  = "J";
+   $m_crawler_info_lookup_table{'JPSS1_REFINED'}    = "J";
    return(1);
 }  
 
