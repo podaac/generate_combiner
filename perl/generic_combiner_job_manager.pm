@@ -59,7 +59,7 @@ sub setup_name_extension_lookup_table {
     $m_name_extension_lookup_table{'MODIS_A'} = "LAC";
     $m_name_extension_lookup_table{'MODIS_T'} = "LAC";
     $m_name_extension_lookup_table{'VIIRS'  } = "SNPP";
-    $m_name_extension_lookup_table{'JPSS1'  } = "JPSS1";
+    $m_name_extension_lookup_table{'JPSS1'  } = "SNPP";
 }
 
 #------------------------------------------------------------------------------------------------
