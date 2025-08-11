@@ -102,6 +102,14 @@ else if ($data_type == "MODIS_T") then
     else
         set p_type = "TERRA_REFINED"
     endif
+else if ($data_type == "JPSS1") then
+    set dataset = "JPSS1 VIIRS"
+    set script_name = "generic_level2_combiner_job_index.pl"
+    if ($processing_type == "QUICKLOOK") then
+        set p_type = "JPSS1_QUICKLOOK"
+    else
+        set p_type = "JPSS1_REFINED"
+    endif
 else
     setenv GHRSST_OBPG_USE_2019_NAMING_PATTERN true
     set dataset = "VIIRS"
